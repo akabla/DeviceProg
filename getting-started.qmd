@@ -32,21 +32,49 @@ The default baud rate is 115200.
 
 We recommend using Visual Studio Code for this project, both for C/C++ programming and for MicroPython.
 
+There are extensions available that greatly facilitate the development of programs. These can normally be installed directly from the VS Code environment.
+
+* [Pico-vscode](https://github.com/raspberrypi/pico-vscode)
+* [MicroPico](https://github.com/paulober/MicroPico)
+
 ::: {.panel-tabset group="language"}
 ## C
-Instructions for setting up the C++ environment (e.g., toolchain, IDE).
+
 
 ## MicroPython
-Instructions for setting up MicroPython (e.g., firmware flashing, Thonny IDE).
+Download and install the version of MicroPython for your device at the following [documentation page](https://www.raspberrypi.com/documentation/microcontrollers/micropython.html#drag-and-drop-micropython).
 :::
 
 
 ## Assembling the breadboard
 
 Please position your Pico, LED and switch as illustrated below.
+The LED needs a 100-500Ω resistor to limit current.
+The switch requires a larger, ~10kΩ resistor, to act as a pull-down resistor; It makes sure that the voltage on the Pico's pin is 0V when the switch is open.
+
+![Breadboard assembly for this section](/resources/PushLED_Diagram.png)
+
+
+
+
+
+
+
+
+
 
 ## LED switch
 
+The first project we cover combine a tactile switch (push button) and an LED. We want the LED to be turned on when the switch is pressed, and off otherwise. How would we do this? Think about it for a little while.
+
+The code below illustrates a simple approach to do that.
+The first part consists in configuring the GPIOs we need, one as an output to control the LED, and one as an input, to read the state of the button.
+We also configure the button input with a pull-down resistor, internal to the Pico, so that it should work even without the 10kΩ on the diagram.
+
+Then the key part of the code consists in running an infinite loop that tests the state of the button and update the state of the LED accordingly.
+Read it, understand it, and try it on your Pico.
+
+What would you change to invert the role of the button: LED off when pushed, but on otherwise?
 
 ::: {.panel-tabset group="language"}
 ## C
@@ -113,6 +141,17 @@ while True:
 
 
 ## LED toggle
+
+The previous example was a nice introduction to LEDs and buttons. Now we are after something a bit more complex. We want the button to toggle the state of the LED every time we press it.
+How would you do this? What makes this more complex than the previous case? Try to figure out ways to implement this, even if it doesn't fully work yet.
+
+The code below shows a way forward.
+The key issue is that we need to detect an event - the button being pressed, rather than a state.
+The event corresponds to a change of state, so to detect the event, we keep track of the state and its changes. If the current state of the button pin is high, but was low before, then the button must have been pressed between the last two cycles of the main loop. So we change the state of the LED at this point.
+
+Try the code, and see if it works. You may play with the delay at the end, uncommenting it and changing the value.
+Anything unexpected?
+
 
 ::: {.panel-tabset group="language"}
 ## C

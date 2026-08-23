@@ -293,14 +293,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="programming-environment" class="level3">
 <h3 class="anchored" data-anchor-id="programming-environment">Programming environment</h3>
 <p>We recommend using Visual Studio Code for this project, both for C/C++ programming and for MicroPython.</p>
+<p>There are extensions available that greatly facilitate the development of programs. These can normally be installed directly from the VS Code environment.</p>
+<ul>
+<li><a href="https://github.com/raspberrypi/pico-vscode">Pico-vscode</a></li>
+<li><a href="https://github.com/paulober/MicroPico">MicroPico</a></li>
+</ul>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">MicroPython</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<p>Instructions for setting up the C++ environment (e.g., toolchain, IDE).</p>
+
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<p>Instructions for setting up MicroPython (e.g., firmware flashing, Thonny IDE).</p>
+<p>Download and install the version of MicroPython for your device at the following <a href="https://www.raspberrypi.com/documentation/microcontrollers/micropython.html#drag-and-drop-micropython">documentation page</a>.</p>
 </div>
 </div>
 </div>
@@ -308,10 +313,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="assembling-the-breadboard" class="level2">
 <h2 class="anchored" data-anchor-id="assembling-the-breadboard">Assembling the breadboard</h2>
-<p>Please position your Pico, LED and switch as illustrated below.</p>
+<p>Please position your Pico, LED and switch as illustrated below. The LED needs a 100-500Ω resistor to limit current. The switch requires a larger, ~10kΩ resistor, to act as a pull-down resistor; It makes sure that the voltage on the Pico’s pin is 0V when the switch is open.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./resources/PushLED_Diagram.png" class="img-fluid figure-img"></p>
+<figcaption>Breadboard assembly for this section</figcaption>
+</figure>
+</div>
 </section>
 <section id="led-switch" class="level2">
 <h2 class="anchored" data-anchor-id="led-switch">LED switch</h2>
+<p>The first project we cover combine a tactile switch (push button) and an LED. We want the LED to be turned on when the switch is pressed, and off otherwise. How would we do this? Think about it for a little while.</p>
+<p>The code below illustrates a simple approach to do that. The first part consists in configuring the GPIOs we need, one as an output to control the LED, and one as an input, to read the state of the button. We also configure the button input with a pull-down resistor, internal to the Pico, so that it should work even without the 10kΩ on the diagram.</p>
+<p>Then the key part of the code consists in running an infinite loop that tests the state of the button and update the state of the LED accordingly. Read it, understand it, and try it on your Pico.</p>
+<p>What would you change to invert the role of the button: LED off when pushed, but on otherwise?</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">MicroPython</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -375,6 +390,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="led-toggle" class="level2">
 <h2 class="anchored" data-anchor-id="led-toggle">LED toggle</h2>
+<p>The previous example was a nice introduction to LEDs and buttons. Now we are after something a bit more complex. We want the button to toggle the state of the LED every time we press it. How would you do this? What makes this more complex than the previous case? Try to figure out ways to implement this, even if it doesn’t fully work yet.</p>
+<p>The code below shows a way forward. The key issue is that we need to detect an event - the button being pressed, rather than a state. The event corresponds to a change of state, so to detect the event, we keep track of the state and its changes. If the current state of the button pin is high, but was low before, then the button must have been pressed between the last two cycles of the main loop. So we change the state of the LED at this point.</p>
+<p>Try the code, and see if it works. You may play with the delay at the end, uncommenting it and changing the value. Anything unexpected?</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">MicroPython</a></li></ul>
 <div class="tab-content" data-group="language">

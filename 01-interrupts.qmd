@@ -1,55 +1,238 @@
 # Interrupts
 
 ## Overview
-Concepts behind hardware and timer interrupts.
 
-## Code Example
+There were two issues with the code we previously studied to toggle the state of an LED with a button.
+
+The main issue was related to the debouncing - the fact that when a mechanical switch toggles, it doesn't do it cleanly, but oscillates for a few milliseconds. Adding a wait command could help regulate this issue.
+
+The second issue is about performance. The main loop spends lots of resources monitoring the state of a pin, just in case it changes. This is resource intensive for a task that is not very complicated for such a power chip. If only we could delegate these mundane tasks to specialised circuits. Well, we can! This is the domain of interrupts.
+
+An interrupt is precisely a hardware feature that allows a microcontroller to react instantly to real-world events without constantly checking for them in a loop. For this, you register a special function, called an Interrupt Service Routine (ISR) or handler. That function is not directly called, and essentially sits dormant. When a specific hardware signal occurs, such as a voltage transition on a GPIO pin or a timer expiring, the hardware immediately pauses the main execution thread, jumps to run your interrupt handler function, and then seamlessly resumes your main program right where it left off. Interrupts respond to events, such as a change in value. They are therefore well suited for detecting the press of a button.
+Whether implemented in C using callbacks or in MicroPython via Pin.irq(), interrupts use dedicated hardware to monitor changes, enabling fast response and leaving your main loop free to handle other tasks, or simply sleep to conserve power.
+
+
+## Liberating the main loop
+
+Let's revisit the LED toggle example, and try to liberate the main loop from the tedious task of monitoring a pin.
+It is easy to get lost with the syntax of such programs, so we will simply analyse the examples below at this point.
+Read the C or python version, and see if you can make sense of it.
+Note that the event is a specific change to the pin state, which is a rise. This corresponds to the button being pushed.
 
 ::: {.panel-tabset group="language"}
 ## C
+
+Here, we decide to keep track of the state of the LED with a global variable.
+Pay attention to the use of the key word `volatile`. It tells the compiler that the variable may be changed unexpectedly by external factors, such as interrupts.
+It prevents the compiler to assume that this variable is always false, because the program never calls the function `gpio_callback()` directly.
+
 ```c
 #include "pico/stdlib.h"
 
 #define LED_PIN    15
 #define BUTTON_PIN 16
 
+// Track state globally so the interrupt callback can toggle it
+volatile bool led_state = false;
+
+// GPIO Interrupt Callback (Fires immediately on button press)
+void gpio_callback(uint gpio, uint32_t events) {
+    if (gpio == BUTTON_PIN) {
+        led_state = !led_state;        // Flip the state tracking variable
+        gpio_put(LED_PIN, led_state);  // Apply the state to the pin
+    }
+}
+
 int main() {
     stdio_init_all();
 
-    // Configure LED pin as digital output
+    // Configure LED pin
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
 
-    // Configure Button pin as digital input with internal pull-down
+    // Configure Button pin
     gpio_init(BUTTON_PIN);
     gpio_set_dir(BUTTON_PIN, GPIO_IN);
     gpio_pull_down(BUTTON_PIN);
 
-    // Track states
-    bool led_state = false;
-    bool last_button_state = false;
+    // Attach GPIO interrupt on rising edge (LOW -> HIGH)
+    gpio_set_irq_enabled_with_callback(
+        BUTTON_PIN, 
+        GPIO_IRQ_EDGE_RISE, 
+        true, 
+        &gpio_callback
+    );
 
+    // Main loop stays empty - hardware handles interrupts asynchronously
     while (true) {
-        bool current_button_state = gpio_get(BUTTON_PIN);
+        // Your important code would go here
+    }
+}
+```
+## MicroPython
 
-        // Check for a press event (LOW -> HIGH transition)
-        if (current_button_state && !last_button_state) {
-            led_state = !led_state;           // Flip the state tracking variable
-            gpio_put(LED_PIN, led_state);     // Apply the state to the pin
-        }
+In this example, the variable led_state is global, and needs to be changed inside a function.
+This is why, within the function, we need to use the `global` keyword, to indicate that it should not do a local copy and change the global variable.
 
-        // Save state for the next pass
-        last_button_state = current_button_state;
+```python
+from machine import Pin
 
-        // Brief delay for basic loop control
-        // Try to uncomment it and see what happens.
-        //sleep_ms(30);
+LED_PIN = 15
+BUTTON_PIN = 16
+
+# Track state
+led_state = False
+
+# Configure LED pin
+led = Pin(LED_PIN, Pin.OUT)
+
+# Configure Button pin
+button = Pin(BUTTON_PIN, Pin.IN, Pin.PULL_DOWN)
+
+
+# GPIO Interrupt Callback (Fires immediately on button press)
+def gpio_callback(pin):
+    global led_state
+    led_state = not led_state  # Flip the state tracking variable
+    led.value(led_state)  # Apply the state to the pin
+
+
+# Attach GPIO interrupt on rising edge (LOW -> HIGH)
+button.irq(handler=gpio_callback, trigger=Pin.IRQ_RISING)
+
+# Main loop stays empty - hardware handles interrupts asynchronously
+while True:
+    # Your important code would go here
+    pass
+```
+:::
+
+
+
+
+
+
+
+## Dealing with the debouncing with a timer
+
+A timer interrupt is an event triggered automatically by a microcontroller's internal hardware clock after a precise duration or at fixed time intervals. Rather than relying on blocking delays like sleep_ms(), which freeze CPU execution, a hardware timer counts clock cycles in the background while your main code runs uninterrupted. Once the counter reaches a target value, the hardware generates an interrupt, pausing the main loop to execute a designated callback function before resuming normal operation. Whether you use them as "one-shot" alarms for deferred actions (like debouncing a button press in our example) or periodic tickers for precise, recurring tasks (like reading a sensor at exactly 100 Hz), timer interrupts allow C and MicroPython programs to handle precise time-critical operations concurrently without wasting CPU cycles.
+
+In our example, to tackle the debouncing, we want to only toggle the LED for the first transition from low to high on the pin, and ignore the bounces for a short while after this. To do this, the idea is the following: when the button is pressed, the interrupt deactivate itself, toggles the LED, and launches a timer for a few hundred milliseconds after which a callback function is triggered to reinstate the pin interrupt, ready for the next press of the button. Thecode below does this for us. Study the code, and try it.
+
+You will notice that the led_state variables are not used anymore. What did we change to enable this?
+
+
+::: {.panel-tabset group="language"}
+## C
+
+In this example in C, there are two different functions used to configure the GPIO interrupt: `gpio_set_irq_enabled_with_callback` and `gpio_set_irq_enabled`. The former sets the interrupt and attach the callback function, but the other simply active or deactivate it. This is because the Pico SDK uses interrupts in a way that is slightly unusual. There is only one callback function for all interrupts, and the callback function has to decide, based on the value of the pin and event, what to do. In other microcontrollers, it is often the case that each event is attached to its owned callback function directly.
+
+The documentation of the SDK can be helpful to better understand these functions: [SDK - IRQ functions](https://www.raspberrypi.com/documentation/pico-sdk/hardware.html#group_hardware_gpio_1ga37b23dea291af5926735b5e8c87b7dbb).
+
+```c
+#include "pico/stdlib.h"
+
+#define LED_PIN          15
+#define BUTTON_PIN       16
+#define DEBOUNCE_MS     300   // Adjust debounce duration here (in milliseconds)
+
+// Forward declaration of the timer callback
+int64_t timer_callback(alarm_id_t id, void *user_data);
+
+// GPIO Interrupt Callback (Fires on button press)
+void gpio_callback(uint gpio, uint32_t events) {
+    if (gpio == BUTTON_PIN) {
+        // Step A: Disable button interrupt during debounce period
+        gpio_set_irq_enabled(BUTTON_PIN, GPIO_IRQ_EDGE_RISE, false);
+
+        // Step B: Read current pin state, invert it, and update the LED
+        gpio_put(LED_PIN, !gpio_get(LED_PIN));
+
+        // Step C: Start single-shot timer to re-enable the interrupt
+        add_alarm_in_ms(DEBOUNCE_MS, timer_callback, NULL, false);
+    }
+}
+
+// Timer Callback (Fires after DEBOUNCE_MS elapses)
+int64_t timer_callback(alarm_id_t id, void *user_data) {
+    // Re-enable the button interrupt after bounce has settled
+    gpio_set_irq_enabled(BUTTON_PIN, GPIO_IRQ_EDGE_RISE, true);
+
+    // Return 0 so the alarm does not repeat
+    return 0;
+}
+
+int main() {
+    stdio_init_all();
+
+    // Configure LED pin
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+
+    // Configure Button pin
+    gpio_init(BUTTON_PIN);
+    gpio_set_dir(BUTTON_PIN, GPIO_IN);
+    gpio_pull_down(BUTTON_PIN);
+
+    // Attach GPIO interrupt on rising edge (LOW -> HIGH)
+    gpio_set_irq_enabled_with_callback(
+        BUTTON_PIN, 
+        GPIO_IRQ_EDGE_RISE, 
+        true, 
+        &gpio_callback
+    );
+
+    // Main loop stays empty - hardware handles interrupts & timing asynchronously
+    while (true) {
+        // Your important code would go there
     }
 }
 ```
 ## MicroPython
 ```python
-# MicroPython Interrupt Example
+from machine import Pin, Timer
+
+LED_PIN = 15
+BUTTON_PIN = 16
+DEBOUNCE_MS = 300  # Adjust debounce duration here (in milliseconds)
+
+# Create a hardware Timer object for software debounce
+timer = Timer()
+
+# Configure LED pin
+led = Pin(LED_PIN, Pin.OUT)
+
+# Configure Button pin
+button = Pin(BUTTON_PIN, Pin.IN, Pin.PULL_DOWN)
+
+
+# Timer Callback (Fires after DEBOUNCE_MS elapses)
+def timer_callback(t):
+    # Re-enable the button interrupt after bounce has settled
+    button.irq(handler=gpio_callback, trigger=Pin.IRQ_RISING)
+
+
+# GPIO Interrupt Callback (Fires on button press)
+def gpio_callback(pin):
+    # Step A: Disable button interrupt during debounce period
+    button.irq(handler=None)
+
+    # Step B: Read current pin state, invert it, and update the LED
+    led.value(not led.value())
+
+    # Step C: Start single-shot timer to re-enable the interrupt
+    timer.init(
+        mode=Timer.ONE_SHOT, period=DEBOUNCE_MS, callback=timer_callback
+    )
+
+
+# Attach GPIO interrupt on rising edge (LOW -> HIGH)
+button.irq(handler=gpio_callback, trigger=Pin.IRQ_RISING)
+
+# Main loop stays empty - hardware handles interrupts & timing asynchronously
+while True:
+    # Your important code would go there
+    pass
 ```
 :::
 

@@ -1,11 +1,15 @@
 # Assignment 1: Interrupts
 
 ## Objective
-Description of the assignment task.
+
+Write a program in C or Micropython that will turn on the LED after the button is pressed 10 times.
+
+What happens if you keep pressing afterwards is up to you.
 
 ## Requirements
-* Requirement 1
-* Requirement 2
+* You must keep your main while loop clear, although you may use it to print information on the serial monitor if useful.
+* You must debounce the button at the microcontroller level, i.e. not using a low pass filter at the input. Although this might be a perfectly valid approach too outside of this exercise.
 
 ## Submission Guidelines
-Instructions on how to submit code and results.
+
+Show you instructor or record a short video.
