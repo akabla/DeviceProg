@@ -8,7 +8,44 @@ Concepts behind hardware and timer interrupts.
 ::: {.panel-tabset group="language"}
 ## C
 ```c
-// C Interrupt Example
+#include "pico/stdlib.h"
+
+#define LED_PIN    15
+#define BUTTON_PIN 16
+
+int main() {
+    stdio_init_all();
+
+    // Configure LED pin as digital output
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+
+    // Configure Button pin as digital input with internal pull-down
+    gpio_init(BUTTON_PIN);
+    gpio_set_dir(BUTTON_PIN, GPIO_IN);
+    gpio_pull_down(BUTTON_PIN);
+
+    // Track states
+    bool led_state = false;
+    bool last_button_state = false;
+
+    while (true) {
+        bool current_button_state = gpio_get(BUTTON_PIN);
+
+        // Check for a press event (LOW -> HIGH transition)
+        if (current_button_state && !last_button_state) {
+            led_state = !led_state;           // Flip the state tracking variable
+            gpio_put(LED_PIN, led_state);     // Apply the state to the pin
+        }
+
+        // Save state for the next pass
+        last_button_state = current_button_state;
+
+        // Brief delay for basic loop control
+        // Try to uncomment it and see what happens.
+        //sleep_ms(30);
+    }
+}
 ```
 ## MicroPython
 ```python

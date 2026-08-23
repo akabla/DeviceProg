@@ -2,10 +2,191 @@
 
 ## Setup Instructions
 
+The Pico needs to be connected to your computer through the USB cable for power (unless provided externally), to upload a program on it, and to communicate with it during the execution of the program (printing in a terminal or reading user input from keyboard).
+
+### First binaries
+
+Binaries are files that contain machine instructions for the Pico. The file extension is `.uf2`. When programming in C, such binary is produced on your computer and needs to be transfered to the Pico. When using micropython, the micropython interpreter is the binary that needs to be transfered to the Pico. After this, python programs can be transfered to it to be interpreted on the machine.
+
+Here, we will follow the [Your First Binaries](https://github.com/raspberrypi/documentation/blob/master/documentation/asciidoc/microcontrollers/c_sdk/your_first_binary.adoc#your-first-binaries) section of the Pico tutorial to practice this step and test the Pico.
+
+To load a program on the Pico, follow this process:
+
+  * Starting from a board disconnect from the computer, press the BOOTSEL button and insert the USB connection to your computer at the same time.
+  * The Pico should show up as a USB drive on your computer.
+  * Copy the exectuable `.uf2` file on this drive.
+  * This should upload the program on the Pico and restart it automatically.
+
+### LED Blink
+
+Download and install the [Blink UF2](https://github.com/raspberrypi/pico-sdk-prebuilts/releases/latest/download/blink_universal.uf2) file. This file supports all Pico variants.
+If all goes well, you should see the integrated LED blink on your board.
+
+### USB Serial communication
+
+Download and install the ['Hello World' UF2](https://github.com/raspberrypi/pico-sdk-prebuilts/releases/latest/download/hello_universal.uf2) file. This file should also supports all Pico variants.
+Once it is installed and running, open a Serial monitor and connect it to the port of the board.
+The default baud rate is 115200.
+
+### Programming environment
+
+We recommend using Visual Studio Code for this project, both for C/C++ programming and for MicroPython.
+
 ::: {.panel-tabset group="language"}
-## C++
+## C
 Instructions for setting up the C++ environment (e.g., toolchain, IDE).
 
 ## MicroPython
 Instructions for setting up MicroPython (e.g., firmware flashing, Thonny IDE).
+:::
+
+
+## Assembling the breadboard
+
+Please position your Pico, LED and switch as illustrated below.
+
+## LED switch
+
+
+::: {.panel-tabset group="language"}
+## C
+```c
+#include "pico/stdlib.h"
+
+#define LED_PIN    15
+#define BUTTON_PIN 16
+
+int main() {
+    stdio_init_all();
+
+    // Configure LED pin as digital output
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+
+    // Configure Button pin as digital input
+    gpio_init(BUTTON_PIN);
+    gpio_set_dir(BUTTON_PIN, GPIO_IN);
+
+    // Enable internal pull-down resistor so GP16 reads LOW when the button is open
+    gpio_pull_down(BUTTON_PIN);
+
+    while (true) {
+        // Read the button state (returns true if HIGH/VCC, false if LOW)
+        bool state = gpio_get(BUTTON_PIN);
+
+        // Turn LED on if pressed, off if released
+        gpio_put(LED_PIN, state);
+
+        // Brief delay to give the CPU a tiny rest
+        sleep_ms(10);
+    }
+}
+```
+## MicroPython
+```python
+from machine import Pin
+from utime import sleep
+
+LED_PIN = 15       # External LED Pin output
+BUTTON_PIN = 16       # External LED Pin output
+
+# Configure LED pin as digital output
+led = Pin(LED_PIN, Pin.OUT)
+
+# Configure Button pin as digital input
+push_button = Pin(BUTTON_PIN, Pin.IN) 
+
+while True:
+    # Read the button state (returns true if HIGH/VCC, false if LOW)
+    state = push_button.value()
+
+    # Turn LED on if pressed, off if released
+    led.value(state)
+
+    # Small sleep prevents 100% CPU lockup and keeps REPL responsive
+    sleep(0.01)
+```
+:::
+
+
+
+
+
+## LED toggle
+
+::: {.panel-tabset group="language"}
+## C
+```c
+#include "pico/stdlib.h"
+
+#define LED_PIN    15
+#define BUTTON_PIN 16
+
+int main() {
+    stdio_init_all();
+
+    // Configure LED pin as digital output
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+
+    // Configure Button pin as digital input with internal pull-down
+    gpio_init(BUTTON_PIN);
+    gpio_set_dir(BUTTON_PIN, GPIO_IN);
+    gpio_pull_down(BUTTON_PIN);
+
+    // Track states
+    bool led_state = false;
+    bool last_button_state = false;
+
+    while (true) {
+        bool current_button_state = gpio_get(BUTTON_PIN);
+
+        // Check for a press event (LOW -> HIGH transition)
+        if (current_button_state && !last_button_state) {
+            led_state = !led_state;           // Flip the state tracking variable
+            gpio_put(LED_PIN, led_state);     // Apply the state to the pin
+        }
+
+        // Save state for the next pass
+        last_button_state = current_button_state;
+
+        // Brief delay for basic loop control
+        // Try to uncomment it and see what happens.
+        //sleep_ms(30);
+    }
+}
+```
+## MicroPython
+```python
+import time
+from machine import Pin
+
+LED_PIN = 15
+BUTTON_PIN = 16
+
+# Configure LED pin as digital output
+led = Pin(LED_PIN, Pin.OUT)
+
+# Configure Button pin as digital input with internal pull-down
+button = Pin(BUTTON_PIN, Pin.IN, Pin.PULL_DOWN)
+
+# Track states
+led_state = False
+last_button_state = False
+
+while True:
+    current_button_state = button.value()
+
+    # Check for a press event (LOW -> HIGH transition)
+    if current_button_state and not last_button_state:
+        led_state = not led_state  # Flip the state tracking variable
+        led.value(led_state)  # Apply the state to the pin
+
+    # Save state for the next pass
+    last_button_state = current_button_state
+
+    # Brief delay for basic loop control
+    # Try to uncomment it and see what happens.
+    # time.sleep_ms(30)
+```
 :::
