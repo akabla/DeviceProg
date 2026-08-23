@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>3&nbsp; Assignment 1: Interrupts – Embedded Computing</title>
+<title>Assignment 3: Temperature Control – Embedded Computing</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -36,8 +36,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./02-i2c-sensors.html" rel="next">
-<link href="./01-interrupts.html" rel="prev">
+<link href="./03-pwm-control.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -88,7 +87,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-interrupts.html">Module 1: Interrupts</a></li><li class="breadcrumb-item"><a href="./01-assignment.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Assignment 1: Interrupts</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03-pwm-control.html">Module 3: PWM &amp; Temperature Control</a></li><li class="breadcrumb-item"><a href="./03-assignment.html"><span class="chapter-title">Assignment 3: Temperature Control</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -121,8 +120,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./getting-started.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Getting Started</span></span></a>
+  <a href="./getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Getting Started</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -136,14 +134,12 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./01-interrupts.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Interrupts</span></span></a>
+  <a href="./01-interrupts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Interrupts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./01-assignment.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Assignment 1: Interrupts</span></span></a>
+  <a href="./01-assignment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Assignment 1: Interrupts</span></a>
   </div>
 </li>
       </ul>
@@ -159,14 +155,12 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02-i2c-sensors.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">I2C &amp; Temperature Sensors</span></span></a>
+  <a href="./02-i2c-sensors.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">I2C &amp; Temperature Sensors</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02-assignment.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Assignment 2: I2C Sensors</span></span></a>
+  <a href="./02-assignment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Assignment 2: I2C Sensors</span></a>
   </div>
 </li>
       </ul>
@@ -182,14 +176,12 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./03-pwm-control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">PWM, H-Bridges &amp; Temperature Control</span></span></a>
+  <a href="./03-pwm-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">PWM, H-Bridges &amp; Temperature Control</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./03-assignment.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Assignment 3: Temperature Control</span></span></a>
+  <a href="./03-assignment.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Assignment 3: Temperature Control</span></a>
   </div>
 </li>
       </ul>
@@ -204,18 +196,17 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#objective" id="toc-objective" class="nav-link active" data-scroll-target="#objective"><span class="header-section-number">3.1</span> Objective</a></li>
-  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements"><span class="header-section-number">3.2</span> Requirements</a></li>
-  <li><a href="#submission-guidelines" id="toc-submission-guidelines" class="nav-link" data-scroll-target="#submission-guidelines"><span class="header-section-number">3.3</span> Submission Guidelines</a></li>
+  <li><a href="#objective" id="toc-objective" class="nav-link active" data-scroll-target="#objective">Objective</a></li>
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-interrupts.html">Module 1: Interrupts</a></li><li class="breadcrumb-item"><a href="./01-assignment.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Assignment 1: Interrupts</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03-pwm-control.html">Module 3: PWM &amp; Temperature Control</a></li><li class="breadcrumb-item"><a href="./03-assignment.html"><span class="chapter-title">Assignment 3: Temperature Control</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Assignment 1: Interrupts</span></h1>
+<h1 class="title"><span class="chapter-title">Assignment 3: Temperature Control</span></h1>
 </div>
 
 
@@ -232,20 +223,16 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="objective" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="objective"><span class="header-section-number">3.1</span> Objective</h2>
-<p>Description of the assignment task.</p>
+<section id="objective" class="level2">
+<h2 class="anchored" data-anchor-id="objective">Objective</h2>
+<p>Build a closed-loop temperature control system using PWM output and sensor input.</p>
 </section>
-<section id="requirements" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="requirements"><span class="header-section-number">3.2</span> Requirements</h2>
+<section id="requirements" class="level2">
+<h2 class="anchored" data-anchor-id="requirements">Requirements</h2>
 <ul>
 <li>Requirement 1</li>
 <li>Requirement 2</li>
 </ul>
-</section>
-<section id="submission-guidelines" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="submission-guidelines"><span class="header-section-number">3.3</span> Submission Guidelines</h2>
-<p>Instructions on how to submit code and results.</p>
 
 
 </section>
@@ -653,14 +640,11 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./01-interrupts.html" class="pagination-link" aria-label="Interrupts">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Interrupts</span></span>
+      <a href="./03-pwm-control.html" class="pagination-link" aria-label="PWM, H-Bridges &amp; Temperature Control">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">PWM, H-Bridges &amp; Temperature Control</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./02-i2c-sensors.html" class="pagination-link" aria-label="I2C &amp; Temperature Sensors">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">I2C &amp; Temperature Sensors</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
