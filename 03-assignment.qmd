@@ -1,0 +1,8 @@
+# Assignment 3: Temperature Control
+
+## Objective
+Build a closed-loop temperature control system using PWM output and sensor input.
+
+## Requirements
+* Requirement 1
+* Requirement 2

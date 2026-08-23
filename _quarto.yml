@@ -1,0 +1,33 @@
+project:
+  type: book
+  output-dir: _site
+
+book:
+  title: "Embedded Computing"
+  author: "Course Instructor"
+  sidebar:
+    style: "docked"
+    search: true
+  chapters:
+    - index.qmd
+    - getting-started.qmd
+    - part: "Module 1: Interrupts"
+      chapters:
+        - 01-interrupts.qmd
+        - 01-assignment.qmd
+    - part: "Module 2: I2C & Temperature Sensors"
+      chapters:
+        - 02-i2c-sensors.qmd
+        - 02-assignment.qmd
+    - part: "Module 3: PWM & Temperature Control"
+      chapters:
+        - 03-pwm-control.qmd
+        - 03-assignment.qmd
+
+format:
+  html:
+    number-sections: false
+    theme: cosmo
+    toc: true
+    code-copy: true
+    code-fold: false

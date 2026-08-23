@@ -1,0 +1,185 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Embedded Computing",
+    "section": "",
+    "text": "Introduction\nWelcome to the Embedded Computing course.",
+    "crumbs": [
+      "Introduction"
+    ]
+  },
+  {
+    "objectID": "index.html#overview",
+    "href": "index.html#overview",
+    "title": "Embedded Computing",
+    "section": "Overview",
+    "text": "Overview\nBrief introduction to the goals, prerequisites, and learning outcomes of this course.",
+    "crumbs": [
+      "Introduction"
+    ]
+  },
+  {
+    "objectID": "getting-started.html",
+    "href": "getting-started.html",
+    "title": "Getting Started",
+    "section": "",
+    "text": "Setup Instructions",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Getting Started</span>"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#setup-instructions",
+    "href": "getting-started.html#setup-instructions",
+    "title": "Getting Started",
+    "section": "",
+    "text": "C++MicroPython\n\n\nInstructions for setting up the C++ environment (e.g., toolchain, IDE).\n\n\nInstructions for setting up MicroPython (e.g., firmware flashing, Thonny IDE).",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Getting Started</span>"
+    ]
+  },
+  {
+    "objectID": "01-interrupts.html",
+    "href": "01-interrupts.html",
+    "title": "Interrupts",
+    "section": "",
+    "text": "Overview\nConcepts behind hardware and timer interrupts.",
+    "crumbs": [
+      "Module 1: Interrupts",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Interrupts</span>"
+    ]
+  },
+  {
+    "objectID": "01-interrupts.html#code-example",
+    "href": "01-interrupts.html#code-example",
+    "title": "Interrupts",
+    "section": "Code Example",
+    "text": "Code Example\n\nCMicroPython\n\n\n// C Interrupt Example\n\n\n# MicroPython Interrupt Example",
+    "crumbs": [
+      "Module 1: Interrupts",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Interrupts</span>"
+    ]
+  },
+  {
+    "objectID": "01-assignment.html",
+    "href": "01-assignment.html",
+    "title": "3  Assignment 1: Interrupts",
+    "section": "",
+    "text": "3.1 Objective\nDescription of the assignment task.",
+    "crumbs": [
+      "Module 1: Interrupts",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Assignment 1: Interrupts</span>"
+    ]
+  },
+  {
+    "objectID": "01-assignment.html#requirements",
+    "href": "01-assignment.html#requirements",
+    "title": "3  Assignment 1: Interrupts",
+    "section": "3.2 Requirements",
+    "text": "3.2 Requirements\n\nRequirement 1\nRequirement 2",
+    "crumbs": [
+      "Module 1: Interrupts",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Assignment 1: Interrupts</span>"
+    ]
+  },
+  {
+    "objectID": "01-assignment.html#submission-guidelines",
+    "href": "01-assignment.html#submission-guidelines",
+    "title": "3  Assignment 1: Interrupts",
+    "section": "3.3 Submission Guidelines",
+    "text": "3.3 Submission Guidelines\nInstructions on how to submit code and results.",
+    "crumbs": [
+      "Module 1: Interrupts",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Assignment 1: Interrupts</span>"
+    ]
+  },
+  {
+    "objectID": "02-i2c-sensors.html",
+    "href": "02-i2c-sensors.html",
+    "title": "4  I2C & Temperature Sensors",
+    "section": "",
+    "text": "4.1 Overview\nTheory on the I2C protocol and communication with digital temperature sensors.",
+    "crumbs": [
+      "Module 2: I2C & Temperature Sensors",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>I2C & Temperature Sensors</span>"
+    ]
+  },
+  {
+    "objectID": "02-i2c-sensors.html#implementation",
+    "href": "02-i2c-sensors.html#implementation",
+    "title": "4  I2C & Temperature Sensors",
+    "section": "4.2 Implementation",
+    "text": "4.2 Implementation\n\nCMicroPython\n\n\n// C I2C Reader\n\n\n# MicroPython I2C Reader",
+    "crumbs": [
+      "Module 2: I2C & Temperature Sensors",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>I2C & Temperature Sensors</span>"
+    ]
+  },
+  {
+    "objectID": "02-assignment.html",
+    "href": "02-assignment.html",
+    "title": "5  Assignment 2: I2C Sensors",
+    "section": "",
+    "text": "5.1 Objective\nTasks related to reading sensor data and handling communication protocols.",
+    "crumbs": [
+      "Module 2: I2C & Temperature Sensors",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Assignment 2: I2C Sensors</span>"
+    ]
+  },
+  {
+    "objectID": "02-assignment.html#requirements",
+    "href": "02-assignment.html#requirements",
+    "title": "5  Assignment 2: I2C Sensors",
+    "section": "5.2 Requirements",
+    "text": "5.2 Requirements\n\nRequirement 1\nRequirement 2",
+    "crumbs": [
+      "Module 2: I2C & Temperature Sensors",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Assignment 2: I2C Sensors</span>"
+    ]
+  },
+  {
+    "objectID": "03-pwm-control.html",
+    "href": "03-pwm-control.html",
+    "title": "6  PWM, H-Bridges & Temperature Control",
+    "section": "",
+    "text": "6.1 Overview\nPulse-Width Modulation, motor/element driving via H-Bridges, and feedback loop logic.",
+    "crumbs": [
+      "Module 3: PWM & Temperature Control",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>PWM, H-Bridges & Temperature Control</span>"
+    ]
+  },
+  {
+    "objectID": "03-pwm-control.html#control-loop-example",
+    "href": "03-pwm-control.html#control-loop-example",
+    "title": "6  PWM, H-Bridges & Temperature Control",
+    "section": "6.2 Control Loop Example",
+    "text": "6.2 Control Loop Example\n\nCMicroPython\n\n\n// C PWM and Control Loop\n\n\n# MicroPython PWM and Control Loop",
+    "crumbs": [
+      "Module 3: PWM & Temperature Control",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>PWM, H-Bridges & Temperature Control</span>"
+    ]
+  },
+  {
+    "objectID": "03-assignment.html",
+    "href": "03-assignment.html",
+    "title": "7  Assignment 3: Temperature Control",
+    "section": "",
+    "text": "7.1 Objective\nBuild a closed-loop temperature control system using PWM output and sensor input.",
+    "crumbs": [
+      "Module 3: PWM & Temperature Control",
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Assignment 3: Temperature Control</span>"
+    ]
+  },
+  {
+    "objectID": "03-assignment.html#requirements",
+    "href": "03-assignment.html#requirements",
+    "title": "7  Assignment 3: Temperature Control",
+    "section": "7.2 Requirements",
+    "text": "7.2 Requirements\n\nRequirement 1\nRequirement 2",
+    "crumbs": [
+      "Module 3: PWM & Temperature Control",
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Assignment 3: Temperature Control</span>"
+    ]
+  }
+]

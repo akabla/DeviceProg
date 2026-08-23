@@ -1,0 +1,6 @@
+# Introduction {.unnumbered}
+
+Welcome to the Embedded Computing course. 
+
+## Overview
+Brief introduction to the goals, prerequisites, and learning outcomes of this course.

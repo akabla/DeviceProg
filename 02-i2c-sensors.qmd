@@ -1,0 +1,17 @@
+# I2C & Temperature Sensors
+
+## Overview
+Theory on the I2C protocol and communication with digital temperature sensors.
+
+## Implementation
+
+::: {.panel-tabset group="language"}
+## C
+```c
+// C I2C Reader
+```
+## MicroPython
+```python
+# MicroPython I2C Reader
+```
+:::

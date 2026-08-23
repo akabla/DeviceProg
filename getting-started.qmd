@@ -1,0 +1,11 @@
+# Getting Started
+
+## Setup Instructions
+
+::: {.panel-tabset group="language"}
+## C++
+Instructions for setting up the C++ environment (e.g., toolchain, IDE).
+
+## MicroPython
+Instructions for setting up MicroPython (e.g., firmware flashing, Thonny IDE).
+:::

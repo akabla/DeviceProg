@@ -1,0 +1,17 @@
+# PWM, H-Bridges & Temperature Control
+
+## Overview
+Pulse-Width Modulation, motor/element driving via H-Bridges, and feedback loop logic.
+
+## Control Loop Example
+
+::: {.panel-tabset group="language"}
+## C
+```c
+// C PWM and Control Loop
+```
+## MicroPython
+```python
+# MicroPython PWM and Control Loop
+```
+:::

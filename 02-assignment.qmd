@@ -1,0 +1,8 @@
+# Assignment 2: I2C Sensors
+
+## Objective
+Tasks related to reading sensor data and handling communication protocols.
+
+## Requirements
+* Requirement 1
+* Requirement 2
