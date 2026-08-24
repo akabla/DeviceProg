@@ -37,12 +37,22 @@ There are extensions available that greatly facilitate the development of progra
 * [Pico-vscode](https://github.com/raspberrypi/pico-vscode)
 * [MicroPico](https://github.com/paulober/MicroPico)
 
+### Example project
+
 ::: {.panel-tabset group="language"}
 ## C
 
+Go ahead and start a new project from an example. On VS Code, click on the Pico icon, on the left pane. Click new C/C++ project from example. Select your architecture (e.g. Pico 2 W) and an example, for instance blink. Select the folder where it will save the files, and create the new project. If VS Code tells you that you are in restricted mode, click manage and select "in trusted folder". Select the .c file and inspect it. The click again on the Pico icon and click compile project. This will create an executable `.uf2` file in the `build` subfolder. Upload that one of the Pico to test the program.
+
 
 ## MicroPython
-Download and install the version of MicroPython for your device at the following [documentation page](https://www.raspberrypi.com/documentation/microcontrollers/micropython.html#drag-and-drop-micropython).
+
+First, you need to download and install the version of MicroPython for your device at the following [documentation page](https://www.raspberrypi.com/documentation/microcontrollers/micropython.html#drag-and-drop-micropython).
+This is a `uf2` file that needs to be upload as usual to the Pico.
+
+In VS Code, click on the Pico icon on the left pane. Select new micropython project. Give a name to the project, select a location for the folder, and create the project. Open the `.py` file and inspect the code. Right click on the source file on the explorer and select run curent file on Pico to try it.
+
+
 :::
 
 

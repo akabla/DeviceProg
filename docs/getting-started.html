@@ -208,6 +208,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#led-blink" id="toc-led-blink" class="nav-link" data-scroll-target="#led-blink">LED Blink</a></li>
   <li><a href="#usb-serial-communication" id="toc-usb-serial-communication" class="nav-link" data-scroll-target="#usb-serial-communication">USB Serial communication</a></li>
   <li><a href="#programming-environment" id="toc-programming-environment" class="nav-link" data-scroll-target="#programming-environment">Programming environment</a></li>
+  <li><a href="#example-project" id="toc-example-project" class="nav-link" data-scroll-target="#example-project">Example project</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -265,14 +266,18 @@ ul.task-list li input[type="checkbox"] {
 <li><a href="https://github.com/raspberrypi/pico-vscode">Pico-vscode</a></li>
 <li><a href="https://github.com/paulober/MicroPico">MicroPico</a></li>
 </ul>
+</section>
+<section id="example-project" class="level3">
+<h3 class="anchored" data-anchor-id="example-project">Example project</h3>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">MicroPython</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-
+<p>Go ahead and start a new project from an example. On VS Code, click on the Pico icon, on the left pane. Click new C/C++ project from example. Select your architecture (e.g.&nbsp;Pico 2 W) and an example, for instance blink. Select the folder where it will save the files, and create the new project. If VS Code tells you that you are in restricted mode, click manage and select “in trusted folder”. Select the .c file and inspect it. The click again on the Pico icon and click compile project. This will create an executable <code>.uf2</code> file in the <code>build</code> subfolder. Upload that one of the Pico to test the program.</p>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<p>Download and install the version of MicroPython for your device at the following <a href="https://www.raspberrypi.com/documentation/microcontrollers/micropython.html#drag-and-drop-micropython">documentation page</a>.</p>
+<p>First, you need to download and install the version of MicroPython for your device at the following <a href="https://www.raspberrypi.com/documentation/microcontrollers/micropython.html#drag-and-drop-micropython">documentation page</a>. This is a <code>uf2</code> file that needs to be upload as usual to the Pico.</p>
+<p>In VS Code, click on the Pico icon on the left pane. Select new micropython project. Give a name to the project, select a location for the folder, and create the project. Open the <code>.py</code> file and inspect the code. Right click on the source file on the explorer and select run curent file on Pico to try it.</p>
 </div>
 </div>
 </div>
