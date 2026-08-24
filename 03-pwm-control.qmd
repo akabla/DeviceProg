@@ -55,19 +55,16 @@ So, by using a H-bridge, you can apply a voltage to your load without strong res
 
 
 
-L298N Driver
----------------
+### L298N Driver
 
 
-The L298N driver is a dual H-bridge that can be used with voltages between 3.2 V to 40 V and can supply up to 2 A per bridge. To know more about this driver, consults the relevant data-sheet from manufacturers of the :download:`driver integrated circuit <docs/L298N.pdf>` and the manufacturer of the :download:`breakout board <docs/L298N-Motor-Driver-Datasheet.pdf>`. 
+
+The L298N driver is a dual H-bridge that can be used with voltages between 3.2 V to 40 V and can supply up to 2 A per bridge. To know more about this driver, consults the relevant data-sheet from manufacturers of the [driver integrated circuit](resources/L298N.pdf) and the manufacturer of the [breakout board](resources/L298N-Motor-Driver-Datasheet.pdf). 
 
 The image below, from the breakout board datasheet, shows the different inputs and outputs of the circuit. 
 
-.. figure:: images/L298N-Module-Pinout.jpg
-   :scale: 80 %
-   :alt: L298N
+![L298N H bridge connections](resources/L298N-Module-Pinout.jpg)
 
-   L298N H bridge connections. 
 
 - Connect an external DC power supply to the ground and +12V Power pins terminal. The power voltage doesn't need to be 12 V. Any value from 3.2 V to 40 V would work. This power must not be taken from the microcontroller itself. Pay attention to NOT reverse polarity.
 

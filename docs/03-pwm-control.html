@@ -246,8 +246,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#power-electronics-with-a-h-bridge" id="toc-power-electronics-with-a-h-bridge" class="nav-link" data-scroll-target="#power-electronics-with-a-h-bridge">Power electronics with a H-bridge</a>
   <ul class="collapse">
   <li><a href="#what-is-a-h-bridge" id="toc-what-is-a-h-bridge" class="nav-link" data-scroll-target="#what-is-a-h-bridge">What is a H-bridge?</a></li>
-  </ul></li>
   <li><a href="#l298n-driver" id="toc-l298n-driver" class="nav-link" data-scroll-target="#l298n-driver">L298N Driver</a></li>
+  </ul></li>
   <li><a href="#regulation-of-the-speed-and-rotation-direction-of-a-dc-motor" id="toc-regulation-of-the-speed-and-rotation-direction-of-a-dc-motor" class="nav-link" data-scroll-target="#regulation-of-the-speed-and-rotation-direction-of-a-dc-motor">Regulation of the speed and rotation direction of a DC motor</a></li>
   <li><a href="#control-loop-example" id="toc-control-loop-example" class="nav-link" data-scroll-target="#control-loop-example">Control Loop Example</a></li>
   </ul>
@@ -319,13 +319,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p>So, by using a H-bridge, you can apply a voltage to your load without strong restrictions on the amount of power. Selecting the configuration of the four switches S1-S4 (ON/OFF) you can also decide the direction of the driving voltage to the load. Finally, to modulate the intensity of the voltage, just use PWM, opening and closing S1-S4 at high frequency to generate a suitable average voltage.</p>
 </section>
-</section>
-<section id="l298n-driver" class="level2">
-<h2 class="anchored" data-anchor-id="l298n-driver">L298N Driver</h2>
-<p>The L298N driver is a dual H-bridge that can be used with voltages between 3.2 V to 40 V and can supply up to 2 A per bridge. To know more about this driver, consults the relevant data-sheet from manufacturers of the :download:<code>driver integrated circuit &lt;docs/L298N.pdf&gt;</code> and the manufacturer of the :download:<code>breakout board &lt;docs/L298N-Motor-Driver-Datasheet.pdf&gt;</code>.</p>
+<section id="l298n-driver" class="level3">
+<h3 class="anchored" data-anchor-id="l298n-driver">L298N Driver</h3>
+<p>The L298N driver is a dual H-bridge that can be used with voltages between 3.2 V to 40 V and can supply up to 2 A per bridge. To know more about this driver, consults the relevant data-sheet from manufacturers of the <a href="resources/L298N.pdf">driver integrated circuit</a> and the manufacturer of the <a href="resources/L298N-Motor-Driver-Datasheet.pdf">breakout board</a>.</p>
 <p>The image below, from the breakout board datasheet, shows the different inputs and outputs of the circuit.</p>
-<p>.. figure:: images/L298N-Module-Pinout.jpg :scale: 80 % :alt: L298N</p>
-<p>L298N H bridge connections.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="resources/L298N-Module-Pinout.jpg" class="img-fluid figure-img"></p>
+<figcaption>L298N H bridge connections</figcaption>
+</figure>
+</div>
 <ul>
 <li><p>Connect an external DC power supply to the ground and +12V Power pins terminal. The power voltage doesn’t need to be 12 V. Any value from 3.2 V to 40 V would work. This power must not be taken from the microcontroller itself. Pay attention to NOT reverse polarity.</p></li>
 <li><p>Here, we will use only one of the two H-bridges. The load will be connected to the Output A terminals.</p></li>
@@ -339,6 +342,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p>the +5V Power pin is not required here. It may be used to actually power the microcontroller, but we use here the USB connection to the computer to deliver power.</p></li>
 <li><p>However, the microcontroller and the L298N H-bridge need to have the same ground. It is therefore important to connect the Power GND terminal of the H-bridge to a GND pin of the microcontroller.</p></li>
 </ul>
+</section>
 </section>
 <section id="regulation-of-the-speed-and-rotation-direction-of-a-dc-motor" class="level2">
 <h2 class="anchored" data-anchor-id="regulation-of-the-speed-and-rotation-direction-of-a-dc-motor">Regulation of the speed and rotation direction of a DC motor</h2>
