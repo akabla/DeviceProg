@@ -1,8 +1,17 @@
 # Assignment 2: I2C Sensors
 
 ## Objective
-Tasks related to reading sensor data and handling communication protocols.
+
+When an incident happens in an industrial setting, it is important to keep a log of data to analyse the cause of the incident.
+Here, we want to mimic such a scenario.
+
+* The temperature sensor shold read temperature each second.
+* The last 15 measurements need to be stored in memory.
+* When the temperature exceeds the threshold, the LED turns on and the log is printed on the terminal.
+* You may decide what happens after this event - this is not specified.
+
+If you are not sure how to use arrays in C or Python, feel free to search for the relevant information online.
 
 ## Requirements
-* Requirement 1
-* Requirement 2
+* The detection of excess temperature and LED action need to be triggered by the sensor interrupt pin
+* Your record must be stored in an array of 15 elements, at most. Do not allocate a very large array and only print the last 15.

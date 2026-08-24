@@ -1,9 +1,355 @@
 # I2C & Temperature Sensors
 
 ## Overview
-Theory on the I2C protocol and communication with digital temperature sensors.
 
-## Implementation
+In this module, we will connect and use an I2C component, a temperature sensor.
+
+* First, we will test connect the hardware and test the connection by scanning the bus - seeing which addresses on the bus lead to devices ackowledging the call.
+
+* Then we will dissect the data sheet of the sensor and figure out how it works.
+
+* We will do temperature measurements with it.
+
+* Finally we will use its ability to respond to temperature thresholds by triggering an interrupt.
+
+
+## Testing devices on the bus - the bus-scan
+
+There are several I2C hardware peripherals on the Pico microprocessor, and a range of pins can be selected for the connection. Check the pin-out to identify options.
+
+The code examples below assume that you are connected to the peripheral I2C 0, using the pin 4 for SDA and 5 for SCL.
+
+Use jumper wires to connect your sensor to the Pico. The ground and Vcc need to be connected too.
+
+When this is done, run the code below to see if your device is detected. It essentially sends a request on all available addresses and detect which device has acknowledge the request.
+The output is presented as a table, 16 columns and 8 rows, covering the 128 value range. Note that the first and last 8 values are reserved in the protocol, and it is best not to probe them.
+
+::: {.panel-tabset group="language"}
+## C
+```c
+#include <stdio.h>
+#include "pico/stdlib.h"
+#include "hardware/i2c.h"
+#include "hardware/gpio.h"
+
+// Hardware Configuration
+#define I2C_PORT i2c0
+#define SDA_PIN 4
+#define SCL_PIN 5
+
+// I2C Bus Scanner
+void i2c_scan() {
+    printf("\n--- Scanning I2C Bus ---\n");
+    printf("     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n");
+
+    for (int addr = 0; addr < 128; addr++) {
+        if (addr % 16 == 0) {
+            printf("%02X: ", addr);
+        }
+
+        // Reserve I2C addresses (0x00-0x07 and 0x78-0x7F)
+        if ((addr & 0x78) == 0 || (addr & 0x78) == 0x78) {
+            printf("   ");
+        } else {
+            uint8_t rxdata;
+            int result = i2c_read_blocking(I2C_PORT, addr, &rxdata, 1, false);
+
+            if (result >= 0) {
+                printf(" @ "); // Device ACK received
+            } else {
+                printf(" . "); // No device ACK
+            }
+        }
+
+        if (addr % 16 == 15) {
+            printf("\n");
+        }
+    }
+    
+    printf("\n--- Scan Complete ---\n\n");
+}
+
+int main() {
+    stdio_init_all();
+    sleep_ms(10000); // Give serial monitor time to connect
+
+    // Initialize I2C Peripheral
+    i2c_init(I2C_PORT, 100 * 1000);
+    gpio_set_function(SDA_PIN, GPIO_FUNC_I2C);
+    gpio_set_function(SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(SDA_PIN);
+    gpio_pull_up(SCL_PIN);
+
+    // Perform aligned I2C bus scan
+    i2c_scan();
+
+// Main Loop
+    while (true) {
+        sleep_ms(1000);
+    }
+
+    return 0;
+}
+```
+## MicroPython
+```python
+from machine import Pin, I2C
+import time
+
+# Hardware Configuration
+I2C_PORT = 0
+SDA_PIN = 4
+SCL_PIN = 5
+
+OS_INT_PIN = 16    # LM75B OS Alert Pin input
+LED_PIN = 15       # External LED Pin output
+
+# I2C Bus Scanner
+def i2c_scan(i2c):
+    print("\n--- Scanning I2C Bus ---")
+    print("     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F")
+
+    devices = set(i2c.scan())
+
+    for addr in range(128):
+        if addr % 16 == 0:
+            print(f"{addr:02X}: ", end="")
+
+        # Reserve I2C addresses (0x00-0x07 and 0x78-0x7F)
+        if (addr & 0x78) == 0 or (addr & 0x78) == 0x78:
+            print("   ", end="")
+        else:
+            if addr in devices:
+                print(" @ ", end="")  # Device ACK received
+            else:
+                print(" . ", end="")  # No device ACK
+
+        if addr % 16 == 15:
+            print()
+            
+    print("\n--- Scan Complete ---\n")
+
+# Initialize I2C Peripheral (100 kHz)
+i2c = I2C(I2C_PORT, sda=Pin(SDA_PIN), scl=Pin(SCL_PIN), freq=100000)
+
+# Perform aligned I2C bus scan
+i2c_scan(i2c)
+
+# Main Loop
+while True:
+    time.sleep(1)
+```
+:::
+
+
+
+
+## First temperature measurement
+
+
+
+
+::: {.panel-tabset group="language"}
+## C
+```c
+#include <stdio.h>
+#include "pico/stdlib.h"
+#include "hardware/i2c.h"
+#include "hardware/gpio.h"
+
+// Hardware Configuration
+#define I2C_PORT i2c0
+#define SDA_PIN 4
+#define SCL_PIN 5
+
+// LM75B Address & Registers
+#define LM75B_ADDR 0x48  
+#define REG_TEMP   0x00  
+#define REG_CONF   0x01  
+
+
+// I2C Bus Scanner
+void i2c_scan() {
+    printf("\n--- Scanning I2C Bus ---\n");
+    printf("     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n");
+
+    for (int addr = 0; addr < 128; addr++) {
+        if (addr % 16 == 0) {
+            printf("%02X: ", addr);
+        }
+
+        // Reserve I2C addresses (0x00-0x07 and 0x78-0x7F)
+        if ((addr & 0x78) == 0 || (addr & 0x78) == 0x78) {
+            printf("   ");
+        } else {
+            uint8_t rxdata;
+            int result = i2c_read_blocking(I2C_PORT, addr, &rxdata, 1, false);
+
+            if (result >= 0) {
+                printf(" @ "); // Device ACK received
+            } else {
+                printf(" . "); // No device ACK
+            }
+        }
+
+        if (addr % 16 == 15) {
+            printf("\n");
+        }
+    }
+    
+    printf("\n--- Scan Complete ---\n\n");
+}
+
+// Convert 16-bit register value to Celsius float
+float read_temperature() {
+    uint8_t reg = REG_TEMP;
+    uint8_t buf[2] = {0, 0};
+
+    i2c_write_blocking(I2C_PORT, LM75B_ADDR, &reg, 1, true);
+    i2c_read_blocking(I2C_PORT, LM75B_ADDR, buf, 2, false);
+
+    int16_t raw_temp = (int16_t)((buf[0] << 8) | buf[1]);
+    return raw_temp / 256.0f;
+}
+
+// Configure LM75B in Comparator mode
+void configure_lm75b() {
+    uint8_t buf[2];
+    buf[0] = REG_CONF;
+    buf[1] = 0x00; // Comparator mode, OS Active LOW
+
+    i2c_write_blocking(I2C_PORT, LM75B_ADDR, buf, 2, false);
+}
+
+int main() {
+    stdio_init_all();
+    sleep_ms(10000); // Give serial monitor time to connect
+
+    // Initialize I2C Peripheral
+    i2c_init(I2C_PORT, 100 * 1000);
+    gpio_set_function(SDA_PIN, GPIO_FUNC_I2C);
+    gpio_set_function(SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(SDA_PIN);
+    gpio_pull_up(SCL_PIN);
+
+    // Perform aligned I2C bus scan
+    i2c_scan();
+
+    // Configure LM75B sensor
+    configure_lm75b();
+
+    printf("LM75B Running.\n");
+    printf("SDA pin: %d | SCL pin: %d | OS pin: %d \n", 
+           SDA_PIN, SCL_PIN, OS_INT_PIN);
+    
+    printf("Measurements start in 1 sec.\n\n"); 
+    sleep_ms(1000); // Give serial monitor time to connect
+
+
+    // Main Loop
+    while (true) {
+        float temp = read_temperature();
+        printf("Current Temperature: %.2f C\n", temp);
+        sleep_ms(1000);
+    }
+
+    return 0;
+}
+```
+## MicroPython
+```python
+from machine import Pin, I2C
+import time
+
+# Hardware Configuration
+I2C_PORT = 0
+SDA_PIN = 4
+SCL_PIN = 5
+
+OS_INT_PIN = 16    # LM75B OS Alert Pin input
+LED_PIN = 15       # External LED Pin output
+
+# LM75B Address & Registers
+LM75B_ADDR = 0x48  
+REG_TEMP = 0x00  
+REG_CONF = 0x01  
+
+# I2C Bus Scanner
+def i2c_scan(i2c):
+    print("\n--- Scanning I2C Bus ---")
+    print("     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F")
+
+    devices = set(i2c.scan())
+
+    for addr in range(128):
+        if addr % 16 == 0:
+            print(f"{addr:02X}: ", end="")
+
+        # Reserve I2C addresses (0x00-0x07 and 0x78-0x7F)
+        if (addr & 0x78) == 0 or (addr & 0x78) == 0x78:
+            print("   ", end="")
+        else:
+            if addr in devices:
+                print(" @ ", end="")  # Device ACK received
+            else:
+                print(" . ", end="")  # No device ACK
+
+        if addr % 16 == 15:
+            print()
+            
+    print("\n--- Scan Complete ---\n")
+
+# Convert 16-bit register value to Celsius float
+def read_temperature(i2c):
+    # stop=False generates a Repeated START condition
+    i2c.writeto(LM75B_ADDR, bytes([REG_TEMP]), False)
+    buf = i2c.readfrom(LM75B_ADDR, 2)
+
+    # Unpack 16-bit signed integer (Big-Endian)
+    raw_temp = int.from_bytes(buf, 'big', True)
+    return raw_temp / 256.0
+
+# Configure LM75B in Comparator mode
+def configure_lm75b(i2c):
+    # 0x00 = Comparator mode, OS Active LOW
+    i2c.writeto(LM75B_ADDR, bytes([REG_CONF, 0x00]))
+
+
+# Initialize I2C Peripheral (100 kHz)
+i2c = I2C(I2C_PORT, sda=Pin(SDA_PIN), scl=Pin(SCL_PIN), freq=100000)
+
+# Perform aligned I2C bus scan
+i2c_scan(i2c)
+
+# Configure LM75B sensor & Apply defined thresholds
+configure_lm75b(i2c)
+
+print("LM75B Running.")
+print(f"SDA pin: {SDA_PIN} | SCL pin: {SCL_PIN} | OS pin: {OS_INT_PIN}")
+
+print("Measurements start in 1 sec.\n")
+time.sleep(1)
+
+# Main Loop
+while True:
+    temp = read_temperature(i2c)
+    print(f"Current Temperature: {temp:.2f} C")
+    time.sleep(1)
+```
+:::
+
+
+
+
+
+
+
+
+
+
+
+
+## Full implementation with over temperature interrupt
 
 ::: {.panel-tabset group="language"}
 ## C
@@ -49,7 +395,7 @@ void gpio_callback(uint gpio, uint32_t events) {
 }
 
 
-// Aligned I2C Bus Scanner
+// I2C Bus Scanner
 void i2c_scan() {
     printf("\n--- Scanning I2C Bus ---\n");
     printf("     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n");
@@ -81,7 +427,7 @@ void i2c_scan() {
     printf("\n--- Scan Complete ---\n\n");
 }
 
-// Convert 16-bit register value to Celsius float (Divide by 256)
+// Convert 16-bit register value to Celsius float
 float read_temperature() {
     uint8_t reg = REG_TEMP;
     uint8_t buf[2] = {0, 0};
@@ -93,7 +439,7 @@ float read_temperature() {
     return raw_temp / 256.0f;
 }
 
-// Convert Celsius float to 16-bit register format (Multiply by 256)
+// Convert Celsius float to 16-bit register format
 int16_t celsius_to_raw(float temp_c) {
     return (int16_t)(temp_c * 256.0f);
 }
@@ -205,7 +551,7 @@ def gpio_callback(pin):
     else:
         led.value(0)  # Turn LED OFF
 
-# Aligned I2C Bus Scanner
+# I2C Bus Scanner
 def i2c_scan(i2c):
     print("\n--- Scanning I2C Bus ---")
     print("     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F")
@@ -230,7 +576,7 @@ def i2c_scan(i2c):
             
     print("\n--- Scan Complete ---\n")
 
-# Convert 16-bit register value to Celsius float (Divide by 256)
+# Convert 16-bit register value to Celsius float
 def read_temperature(i2c):
     # stop=False generates a Repeated START condition
     i2c.writeto(LM75B_ADDR, bytes([REG_TEMP]), False)
@@ -240,7 +586,7 @@ def read_temperature(i2c):
     raw_temp = int.from_bytes(buf, 'big', True)
     return raw_temp / 256.0
 
-# Convert Celsius float to 16-bit register format (Multiply by 256)
+# Convert Celsius float to 16-bit register format
 def celsius_to_raw(temp_c):
     raw = int(temp_c * 256.0)
     return raw.to_bytes(2, 'big')
@@ -255,41 +601,37 @@ def configure_lm75b(i2c):
     # 0x00 = Comparator mode, OS Active LOW
     i2c.writeto(LM75B_ADDR, bytes([REG_CONF, 0x00]))
 
-def main():
 
-    # Initialize I2C Peripheral (100 kHz)
-    i2c = I2C(I2C_PORT, sda=Pin(SDA_PIN), scl=Pin(SCL_PIN), freq=100000)
+# Initialize I2C Peripheral (100 kHz)
+i2c = I2C(I2C_PORT, sda=Pin(SDA_PIN), scl=Pin(SCL_PIN), freq=100000)
 
-    # Perform aligned I2C bus scan
-    i2c_scan(i2c)
+# Perform aligned I2C bus scan
+i2c_scan(i2c)
 
-    # Configure LM75B sensor & Apply defined thresholds
-    configure_lm75b(i2c)
-    set_temp_threshold(i2c, REG_TOS, TOS_TEMP)
-    set_temp_threshold(i2c, REG_THYST, THYST_TEMP)
+# Configure LM75B sensor & Apply defined thresholds
+configure_lm75b(i2c)
+set_temp_threshold(i2c, REG_TOS, TOS_TEMP)
+set_temp_threshold(i2c, REG_THYST, THYST_TEMP)
 
-    # Initialize LED pin (GP15)
-    led.value(1)
+# Initialize LED pin (GP15)
+led.value(1)
 
-    # Initialize OS Sensor Interrupt Pin (GP16)
-    os_pin = Pin(OS_INT_PIN, Pin.IN, Pin.PULL_UP)
-    os_pin.irq(trigger=Pin.IRQ_FALLING | Pin.IRQ_RISING, handler=gpio_callback)
+# Initialize OS Sensor Interrupt Pin (GP16)
+os_pin = Pin(OS_INT_PIN, Pin.IN, Pin.PULL_UP)
+os_pin.irq(trigger=Pin.IRQ_FALLING | Pin.IRQ_RISING, handler=gpio_callback)
 
-    print("LM75B Running.")
-    print(f"SDA pin: {SDA_PIN} | SCL pin: {SCL_PIN} | OS pin: {OS_INT_PIN}")
-    print(f"TOS Limit: {TOS_TEMP:.1f} C | THYST Limit: {THYST_TEMP:.1f} C | Alarm LED Pin: GP{LED_PIN}\n")
+print("LM75B Running.")
+print(f"SDA pin: {SDA_PIN} | SCL pin: {SCL_PIN} | OS pin: {OS_INT_PIN}")
+print(f"TOS Limit: {TOS_TEMP:.1f} C | THYST Limit: {THYST_TEMP:.1f} C | Alarm LED Pin: GP{LED_PIN}\n")
 
-    print("Measurements start in 1 sec.\n")
+print("Measurements start in 1 sec.\n")
+time.sleep(1)
+led.value(0)
+
+# Main Loop
+while True:
+    temp = read_temperature(i2c)
+    print(f"Current Temperature: {temp:.2f} C")
     time.sleep(1)
-    led.value(0)
-
-    # Main Loop
-    while True:
-        temp = read_temperature(i2c)
-        print(f"Current Temperature: {temp:.2f} C")
-        time.sleep(1)
-
-if __name__ == "__main__":
-    main()
 ```
 :::
