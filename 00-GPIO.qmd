@@ -6,7 +6,7 @@ In this section, we explore digital inputs and outputs on the microcontroller's 
 
 ### General-Purpose Input/Output
 
-General-Purpose Input/Output (GPIO) pins are the physical, software-configurable physical pins on a microcontroller that allow it to interact with the outside world. 
+General-Purpose Input/Output (GPIO) pins are the physical, software-configurable pins on a microcontroller that allow it to interact with the outside world. 
 Each pin can be programmed on the fly as an input to read electrical signals from external components like buttons, sensors, or switches, or as an output to drive devices by sending high or low voltage signals to LEDs, relays, or motor controllers. 
 In addition to operating as digital lines (on/off), GPIOs may also offer other advanced features, such as analog voltage readings (ADC), analog voltage outputs (DAC), or serve as hardware buses for standard communication protocols like I2C, SPI, and UART. They form the fundamental bridge between low-level software logic and hardware physics in embedded systems.
 This is why these pins need to be carefully configured at the start of any device programming applications based on the project requirements.
@@ -18,10 +18,10 @@ The microcontroller's datasheet and pin layout are available on the [Raspberry P
 
 ### Pull-down and pull-up resistors
 
-When a GPIO pin is configured as a digital input, it voltage value is by definition not defined, and therefore needs to be controlled by the environment. If the pin isn't actively connected to a solid voltage source (like 3.3V) or ground (0V), it is in a floating state, susceptible to electrostatic noise and electromagnetic interference, causing the pin's voltage to drift unpredictably between high and low, leading to erratic readings.
+When a GPIO pin is configured as a digital input, its voltage value is by definition not defined, and therefore needs to be controlled by the environment. If the pin isn't actively connected to a solid voltage source (like 3.3V) or ground (0V), it is in a floating state, susceptible to electrostatic noise and electromagnetic interference, causing the pin's voltage to drift unpredictably between high and low, leading to erratic readings.
 
-To avoid this, it is common to connect the pin to either the ground or Vcc with a relatively large resistor, which are called pull-down or pull-up resistors, respectively. This ensures that the default state is well controlled. The circuit below introduces a pull-down resistor for this purpose.
-You will also notice that the microcontroller itself offers the possibility to connect the GPIO pin to either a pull-up or pull-down resistor, achieving the same outcome. The code examples will also make use of this feature, so that you could remove the physical resistor if you want to. Feel free to explore how this work in due course.
+To avoid this, it is common to connect the pin to either the ground or Vcc with a relatively large resistor, which is called pull-down or pull-up resistors, respectively. This ensures that the default state is well controlled. The circuit below introduces a pull-down resistor for this purpose.
+You will also notice that the microcontroller itself offers the possibility to connect the GPIO pin to either a pull-up or pull-down resistor, achieving the same outcome. The code examples will also make use of this feature, so that you could remove the physical resistor if you want to. Feel free to explore how this works in due course.
 
 
 
@@ -44,13 +44,13 @@ The switch uses a larger, ~10kΩ resistor, to act as a pull-down resistor; it ma
 
 ## LED switch
 
-The first project we cover combine a tactile switch (push button) and an LED. We want the LED to be turned on when the switch is pressed, and off otherwise. How would we do this? Think about it for a little while.
+The first project we cover combines a tactile switch (push button) and an LED. We want the LED to be turned on when the switch is pressed, and off otherwise. How would we do this? Think about it for a little while.
 
 The code below illustrates a simple approach to do that.
-The first part consists in configuring the GPIOs we need, one as an output to control the LED, and one as an input, to read the state of the button.
+The first part consists of configuring the GPIOs we need, one as an output to control the LED, and one as an input, to read the state of the button.
 We also configure the button input with a pull-down resistor, internal to the Pico, so that it should work even without the 10kΩ on the diagram.
 
-Then the key part of the code consists in running an infinite loop that tests the state of the button and update the state of the LED accordingly.
+Then the key part of the code consists in running an infinite loop that tests the state of the button and updates the state of the LED accordingly.
 Read it, understand it, and try it on your Pico.
 
 What would you change to invert the role of the button: LED off when pushed, but on otherwise?
@@ -95,7 +95,7 @@ from machine import Pin
 from utime import sleep
 
 LED_PIN = 15       # External LED Pin output
-BUTTON_PIN = 16       # External LED Pin output
+BUTTON_PIN = 16       # Button Pin input
 
 # Configure LED pin as digital output
 led = Pin(LED_PIN, Pin.OUT)

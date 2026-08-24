@@ -6,15 +6,15 @@ The Pico needs to be connected to your computer through the USB cable for power 
 
 ### First binaries
 
-Binaries are files that contain machine instructions for the Pico. The file extension is `.uf2`. When programming in C, such binary is produced on your computer and needs to be transfered to the Pico. When using micropython, the micropython interpreter is the binary that needs to be transfered to the Pico. After this, python programs can be transfered to it to be interpreted on the machine.
+Binaries are files that contain machine instructions for the Pico. The file extension is `.uf2`. When programming in C, such a binary is produced on your computer and needs to be transferred to the Pico. When using micropython, the micropython interpreter is the binary that needs to be transferred to the Pico. After this, python programs can be transferred to it to be interpreted on the machine.
 
 Here, we will follow the [Your First Binaries](https://github.com/raspberrypi/documentation/blob/master/documentation/asciidoc/microcontrollers/c_sdk/your_first_binary.adoc#your-first-binaries) section of the Pico tutorial to practice this step and test the Pico.
 
 To load a program on the Pico, follow this process:
 
-  * Starting from a board disconnect from the computer, press the BOOTSEL button and insert the USB connection to your computer at the same time.
+  * Starting from a board disconnected from the computer, press the BOOTSEL button and insert the USB connection to your computer at the same time.
   * The Pico should show up as a USB drive on your computer.
-  * Copy the exectuable `.uf2` file on this drive.
+  * Copy the executable `.uf2` file on this drive.
   * This should upload the program on the Pico and restart it automatically.
 
 ### LED Blink
@@ -24,7 +24,7 @@ If all goes well, you should see the integrated LED blink on your board.
 
 ### USB Serial communication
 
-Download and install the ['Hello World' UF2](https://github.com/raspberrypi/pico-sdk-prebuilts/releases/latest/download/hello_universal.uf2) file. This file should also supports all Pico variants.
+Download and install the ['Hello World' UF2](https://github.com/raspberrypi/pico-sdk-prebuilts/releases/latest/download/hello_universal.uf2) file. This file should also support all Pico variants.
 Once it is installed and running, open a Serial monitor and connect it to the port of the board.
 The default baud rate is 115200.
 
@@ -42,15 +42,15 @@ There are extensions available that greatly facilitate the development of progra
 ::: {.panel-tabset group="language"}
 ## C
 
-Go ahead and start a new project from an example. On VS Code, click on the Pico icon, on the left pane. Click new C/C++ project from example. Select your architecture (e.g. Pico 2 W) and an example, for instance blink. Select the folder where it will save the files, and create the new project. If VS Code tells you that you are in restricted mode, click manage and select "in trusted folder". Select the .c file and inspect it. The click again on the Pico icon and click compile project. This will create an executable `.uf2` file in the `build` subfolder. Upload that one of the Pico to test the program.
+Go ahead and start a new project from an example. On VS Code, click on the Pico icon, on the left pane. Click new C/C++ project from example. Select your architecture (e.g. Pico 2 W) and an example, for instance blink. Select the folder where it will save the files, and create the new project. If VS Code tells you that you are in restricted mode, click manage and select "in trusted folder". Select the .c file and inspect it. Then click again on the Pico icon and click compile project. This will create an executable `.uf2` file in the `build` subfolder. Upload that file to the Pico to test the program.
 
 
 ## MicroPython
 
 First, you need to download and install the version of MicroPython for your device at the following [documentation page](https://www.raspberrypi.com/documentation/microcontrollers/micropython.html#drag-and-drop-micropython).
-This is a `uf2` file that needs to be upload as usual to the Pico.
+This is a `uf2` file that needs to be uploaded as usual to the Pico.
 
-In VS Code, click on the Pico icon on the left pane. Select new micropython project. Give a name to the project, select a location for the folder, and create the project. Open the `.py` file and inspect the code. Right click on the source file on the explorer and select run curent file on Pico to try it.
+In VS Code, click on the Pico icon on the left pane. Select new micropython project. Give a name to the project, select a location for the folder, and create the project. If VS Code tells you that you are in restricted mode, click manage and select "in trusted folder". Open the `.py` file and inspect the code. Right click on the source file on the explorer and select run current file on Pico to try it.
 
 
 :::
