@@ -159,6 +159,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <a href="./getting-started.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Getting Started</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./00-GPIO.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GPIO</span></a>
+  </div>
+</li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
@@ -234,8 +239,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
   <li><a href="#testing-devices-on-the-bus---the-bus-scan" id="toc-testing-devices-on-the-bus---the-bus-scan" class="nav-link" data-scroll-target="#testing-devices-on-the-bus---the-bus-scan">Testing devices on the bus - the bus-scan</a></li>
-  <li><a href="#first-temperature-measurement" id="toc-first-temperature-measurement" class="nav-link" data-scroll-target="#first-temperature-measurement">First temperature measurement</a></li>
-  <li><a href="#full-implementation-with-over-temperature-interrupt" id="toc-full-implementation-with-over-temperature-interrupt" class="nav-link" data-scroll-target="#full-implementation-with-over-temperature-interrupt">Full implementation with over temperature interrupt</a></li>
+  <li><a href="#the-sensors-datasheet" id="toc-the-sensors-datasheet" class="nav-link" data-scroll-target="#the-sensors-datasheet">The sensor’s datasheet</a>
+  <ul class="collapse">
+  <li><a href="#device-registers" id="toc-device-registers" class="nav-link" data-scroll-target="#device-registers">Device registers</a></li>
+  <li><a href="#reading-and-writing-on-the-registers" id="toc-reading-and-writing-on-the-registers" class="nav-link" data-scroll-target="#reading-and-writing-on-the-registers">Reading and writing on the registers</a></li>
+  </ul></li>
+  <li><a href="#first-temperature-measurement" id="toc-first-temperature-measurement" class="nav-link" data-scroll-target="#first-temperature-measurement">First temperature measurement</a>
+  <ul class="collapse">
+  <li><a href="#binary-arithmetics-for-temperature-data" id="toc-binary-arithmetics-for-temperature-data" class="nav-link" data-scroll-target="#binary-arithmetics-for-temperature-data">Binary arithmetics for temperature data</a></li>
+  <li><a href="#code-sample" id="toc-code-sample" class="nav-link" data-scroll-target="#code-sample">Code sample</a></li>
+  </ul></li>
+  <li><a href="#full-implementation-with-over-temperature-interrupt" id="toc-full-implementation-with-over-temperature-interrupt" class="nav-link" data-scroll-target="#full-implementation-with-over-temperature-interrupt">Full implementation with over temperature interrupt</a>
+  <ul class="collapse">
+  <li><a href="#register-configuration" id="toc-register-configuration" class="nav-link" data-scroll-target="#register-configuration">Register configuration</a></li>
+  <li><a href="#code-sample-1" id="toc-code-sample-1" class="nav-link" data-scroll-target="#code-sample-1">Code sample</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -267,8 +285,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li><p>First, we will test connect the hardware and test the connection by scanning the bus - seeing which addresses on the bus lead to devices ackowledging the call.</p></li>
 <li><p>Then we will dissect the data sheet of the sensor and figure out how it works.</p></li>
-<li><p>We will do temperature measurements with it.</p></li>
-<li><p>Finally we will use its ability to respond to temperature thresholds by triggering an interrupt.</p></li>
+<li><p>We will perform temperature measurements with device.</p></li>
+<li><p>Finally we will use sensor’s ability to respond to temperature thresholds by triggering an interrupt.</p></li>
 </ul>
 </section>
 <section id="testing-devices-on-the-bus---the-bus-scan" class="level2">
@@ -395,8 +413,347 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
+<section id="the-sensors-datasheet" class="level2">
+<h2 class="anchored" data-anchor-id="the-sensors-datasheet">The sensor’s datasheet</h2>
+<p>For any device you wish to connect using I&nbsp;:sup:<code>2</code>&nbsp;C, you will need to:</p>
+<ul>
+<li><p>identify or set the device address;</p></li>
+<li><p>configure the device if needed, by setting the value of different registers controlling the operation of the device;</p></li>
+<li><p>read and send data to the device.</p></li>
+</ul>
+<p>All this information can be found in the data sheet of the device you are planning to use. Make sure you check the availability of a good documentation before selecting a device.</p>
+<p>We will work with a sensor produced by NXP, with a rather good documentation to support the work of the developer. The data sheet of the LM75 sensor you will use is available <a href="resources/temp_sensor_lm75b.pdf">here</a>.</p>
+<p>This is daunting document! It probably contains many technical words you are not familiar with (yet). However, you don’t need to understand it all to get to use the device in your application. Have a quick scan through it at first. If you know what you are looking for, you will get this information out of it quickly enough afterwards.</p>
+<p>Consult the data-sheet of the sensor to identify its I2C address. You’ll see that there is actually a range of address. How to set it? Your sensor is already soldered to a breakout board. Look at the back of the breakout board, and try to understand how to set the address of the device.</p>
+<p>Most of the time, there will also be sample codes available to you online, or good AI models to get you started. But being able to understand the content of the datasheet ensures that you are able to appreciate the full feature set of your device and understand its limitations.</p>
+<section id="device-registers" class="level3">
+<h3 class="anchored" data-anchor-id="device-registers">Device registers</h3>
+<p>Section 7.4 of the datasheet lists the four data registers present in the sensor (see table 5 in datasheet). A register is a small section of memory to store a few bytes of data that the device needs.</p>
+<ul>
+<li><p>The configuration register controls the different modes of operation of the device; you can read or write on it, although you would most likely simply write on it to set the desired behaviour of the sensor. Each bit of the register controls a certain behaviour of the sensor.</p></li>
+<li><p>The temp register contains the last temperature reading; it is read only, as expected.</p></li>
+<li><p>The other two registers contain the information needed to control the threshold temperatures, and will be further discussed in the next section of the tutorial.</p></li>
+</ul>
+<p>All interactions with the device involve writing and reading the content of these registers, so this is what we will look at next.</p>
+</section>
+<section id="reading-and-writing-on-the-registers" class="level3">
+<h3 class="anchored" data-anchor-id="reading-and-writing-on-the-registers">Reading and writing on the registers</h3>
+<p>Each register has an address. There is a special register in the device called pointer register that sets which data register will be involved in the following reading or writing operation. We do not need to worry too much about the details, as communications will be handled by special functions in the mbed I2C library. But it is important to understand the sequence of typical I2C communications to be able to use properly these high level functions.</p>
+<p>A typical sequence to write in the data registers consists in sending through I2C the device address (7 bits and R/W bit set to W), followed by the value of the pointer register, to indicate which data register we want to write on, and the data to store on this register (see figs 7 and 11 in the datasheet).</p>
+<p>To read, a similar process is followed, but two steps are needed (See figs 8 and 11 in the datasheet). First, we send to the I2C bus the device address (7 bits and R/W bit set to W), followed by the value of the pointer register to indicate what we would want to read. The microcontroller would then send another start signal. The next part involves sending again to the I2C bus the device address, but this time with the R/W bit set to R. The master (microcontroller) would continue to control the clock, but this time the slave (sensor) would control the data line, and send, one byte at a time, the data requested.</p>
+</section>
+</section>
 <section id="first-temperature-measurement" class="level2">
 <h2 class="anchored" data-anchor-id="first-temperature-measurement">First temperature measurement</h2>
+<section id="binary-arithmetics-for-temperature-data" class="level3">
+<h3 class="anchored" data-anchor-id="binary-arithmetics-for-temperature-data">Binary arithmetics for temperature data</h3>
+<p>Transforming data buffers into floating point temperature, and vice-versa, is a tricky task. You may not need to create such code, and could reuse the relevant sections of the examples code provided, but it helps to understand how they work.</p>
+<p>The way temperatures are stored on the registers is defined in section 7.4.3 and 7.4.4. Have a look at it first. This is the content of the buffer data_read at the start:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">data_read[0] (8 bits)</th>
+<th style="text-align: center;">data_read[1] (8 bits)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">D10, D9, D8, D7, D6, D5, D4, D3</td>
+<td style="text-align: center;">D2, D1, D0, 0, 0, 0, 0, 0</td>
+</tr>
+</tbody>
+</table>
+<p>These 11 bits represents the whole temperature range, with a 0.125 degree Celsius precision, i.e.&nbsp;1/8 of a degree. The binary value of each bit, including sign, is detailed in the table below:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">D10</th>
+<th style="text-align: center;">D9</th>
+<th style="text-align: center;">D8</th>
+<th style="text-align: center;">D7</th>
+<th style="text-align: center;">D6</th>
+<th style="text-align: center;">D5</th>
+<th style="text-align: center;">D4</th>
+<th style="text-align: center;">D3</th>
+<th style="text-align: center;">D2</th>
+<th style="text-align: center;">D1</th>
+<th style="text-align: center;">D0</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Sign</td>
+<td style="text-align: center;">64</td>
+<td style="text-align: center;">32</td>
+<td style="text-align: center;">16</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1/2</td>
+<td style="text-align: center;">1/4</td>
+<td style="text-align: center;">1/8</td>
+</tr>
+</tbody>
+</table>
+<p>The sign convention follows an approach called <a href="https://en.wikipedia.org/wiki/Two%27s_complement">two’s complement</a>. Table 10 of the datasheet shows examples of temperature values and their equivalent representation in bits.</p>
+<p>The gist of what follows consists in manipulating the bit array to extract the exact value of the temperature. You may want to learn a bit about <a href="https://en.wikipedia.org/wiki/Bitwise_operations_in_C">bitwise operations in C</a> if you never encountered this before.</p>
+<p>The mbed example code for the LM75 sensor does something really complicated and long winded to build the temperature as a text. The appendix below explains what it does, but we are going to explain here a much simpler method.</p>
+<p>The representation we get from the sensor, stored in data_read, is not too far from the representation of a 16-bit signed integer:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">bit value for 16 bit int</th>
+<th style="text-align: center;">Sign</th>
+<th style="text-align: center;">16384</th>
+<th style="text-align: center;">8192</th>
+<th style="text-align: center;">4096</th>
+<th style="text-align: center;">2048</th>
+<th style="text-align: center;">1024</th>
+<th style="text-align: center;">512</th>
+<th style="text-align: center;">256</th>
+<th style="text-align: center;">128</th>
+<th style="text-align: center;">64</th>
+<th style="text-align: center;">32</th>
+<th style="text-align: center;">16</th>
+<th style="text-align: center;">8</th>
+<th style="text-align: center;">4</th>
+<th style="text-align: center;">2</th>
+<th style="text-align: center;">1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">bit value for sensor data</td>
+<td style="text-align: center;">Sign</td>
+<td style="text-align: center;">64</td>
+<td style="text-align: center;">32</td>
+<td style="text-align: center;">16</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1/2</td>
+<td style="text-align: center;">1/4</td>
+<td style="text-align: center;">1/8</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+</tbody>
+</table>
+<p>If we were to paste the 16 bits of data_read in a 16-bit integer, we would get a number that is the temperature scaled by a factor 256, since the bit corresponding to 1 celsius in the sensor data corresponds to 256 in the 16-bit int. This may be a good strategy to follow.</p>
+<p>To use precisely defined integer types, we will use the header file <a href="https://en.wikibooks.org/wiki/C_Programming/stdint.h">stdint.h</a>:</p>
+<p>would create this :</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th>data_read[0]</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>D10</td>
+<td>D9</td>
+<td>D8</td>
+<td>D7</td>
+<td>D6</td>
+<td>D5</td>
+<td>D4</td>
+<td>D3</td>
+</tr>
+</tbody>
+</table>
+<p>To place the bits D10 - D3 at the right place, we need to shift them bitwise using the left-shift operator “&lt;&lt;”:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>data_read[0]</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>D10</td>
+<td>D9</td>
+<td>D8</td>
+<td>D7</td>
+<td>D6</td>
+<td>D5</td>
+<td>D4</td>
+<td>D3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>To complete the number, we need to add the bits D2-D0 contained in data_read[1]. This is done using the bitwise OR operator, “|”, between data_read[0] &lt;&lt; 8 and data_read[1].</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>data_read[0]</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th>data_read[1]</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>D10</td>
+<td>D9</td>
+<td>D8</td>
+<td>D7</td>
+<td>D6</td>
+<td>D5</td>
+<td>D4</td>
+<td>D3</td>
+<td>D2</td>
+<td>D1</td>
+<td>D0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>To get the temperature in degree Celsius, we need to divide this number by 256, making sure the output is a floating point number. To indicate to the compiler that we want the floating point division, we write 256 with a decimal point, 256.0. The conversion code therefore becomes:</p>
+<p>Overall, the code with the new conversion function would be:</p>
+</section>
+<section id="code-sample" class="level3">
+<h3 class="anchored" data-anchor-id="code-sample">Code sample</h3>
+<p>The code below provides a starting point for your first measurement. Note how we set first the configuration register; what behaviour is associated with that based on the datasheet?</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">MicroPython</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -587,8 +944,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
+</section>
 <section id="full-implementation-with-over-temperature-interrupt" class="level2">
 <h2 class="anchored" data-anchor-id="full-implementation-with-over-temperature-interrupt">Full implementation with over temperature interrupt</h2>
+<section id="register-configuration" class="level3">
+<h3 class="anchored" data-anchor-id="register-configuration">Register configuration</h3>
+<p>Read section 7.1 of the datasheet. The OS pin of the sensor is useful to let the device monitor temperature in the background, and send a signal when the temperature exceeds a threshold, Tos. A hysteresis temperature, Thyst, is also defined to avoid noisy signal in the interrupt pin. Fig 6 of the datasheet shows how the OS pin would be controlled for a certain temperature input. There are two different modes of operation for the interrupt in the device, the interrupt mode and the comparator mode. They are selected using the second bit (B1) of the Config register.</p>
+<p>To use this feature of the sensor, we need to write to the two registers holding the values of Tos and Thyst. This follows the same principles as writing to the configuration register, but we need to convert the temperature values from floating point numbers to the 8 or 11 bit values expected in the device registers before transfer.</p>
+<p>The code below provides a working example. Figure out how to connect the LED and interrupt GPIO to make it work.</p>
+</section>
+<section id="code-sample-1" class="level3">
+<h3 class="anchored" data-anchor-id="code-sample-1">Code sample</h3>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">MicroPython</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -876,6 +1242,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

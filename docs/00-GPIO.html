@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>PWM, H-Bridges &amp; Temperature Control – Embedded Computing</title>
+<title>GPIO – Embedded Computing</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -71,8 +71,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./03-assignment.html" rel="next">
-<link href="./02-assignment.html" rel="prev">
+<link href="./01-interrupts.html" rel="next">
+<link href="./getting-started.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -123,7 +123,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03-pwm-control.html">Module 3: PWM &amp; Temperature Control</a></li><li class="breadcrumb-item"><a href="./03-pwm-control.html"><span class="chapter-title">PWM, H-Bridges &amp; Temperature Control</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./00-GPIO.html"><span class="chapter-title">GPIO</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -161,7 +161,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./00-GPIO.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GPIO</span></a>
+  <a href="./00-GPIO.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">GPIO</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -217,7 +217,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./03-pwm-control.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">PWM, H-Bridges &amp; Temperature Control</span></a>
+  <a href="./03-pwm-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">PWM, H-Bridges &amp; Temperature Control</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -237,28 +237,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
-  <li><a href="#pulse-width-modulation-and-led-brightness" id="toc-pulse-width-modulation-and-led-brightness" class="nav-link" data-scroll-target="#pulse-width-modulation-and-led-brightness">Pulse-Width-Modulation and LED brightness</a>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a>
   <ul class="collapse">
-  <li><a href="#what-is-pulse-width-modulation" id="toc-what-is-pulse-width-modulation" class="nav-link" data-scroll-target="#what-is-pulse-width-modulation">What is Pulse-Width-Modulation ?</a></li>
-  <li><a href="#example---control-led-brightness" id="toc-example---control-led-brightness" class="nav-link" data-scroll-target="#example---control-led-brightness">Example - control LED brightness</a></li>
+  <li><a href="#general-purpose-inputoutput" id="toc-general-purpose-inputoutput" class="nav-link" data-scroll-target="#general-purpose-inputoutput">General-Purpose Input/Output</a></li>
+  <li><a href="#pull-down-and-pull-up-resistors" id="toc-pull-down-and-pull-up-resistors" class="nav-link" data-scroll-target="#pull-down-and-pull-up-resistors">Pull-down and pull-up resistors</a></li>
   </ul></li>
-  <li><a href="#power-electronics-with-a-h-bridge" id="toc-power-electronics-with-a-h-bridge" class="nav-link" data-scroll-target="#power-electronics-with-a-h-bridge">Power electronics with a H-bridge</a>
-  <ul class="collapse">
-  <li><a href="#what-is-a-h-bridge" id="toc-what-is-a-h-bridge" class="nav-link" data-scroll-target="#what-is-a-h-bridge">What is a H-bridge?</a></li>
-  </ul></li>
-  <li><a href="#l298n-driver" id="toc-l298n-driver" class="nav-link" data-scroll-target="#l298n-driver">L298N Driver</a></li>
-  <li><a href="#regulation-of-the-speed-and-rotation-direction-of-a-dc-motor" id="toc-regulation-of-the-speed-and-rotation-direction-of-a-dc-motor" class="nav-link" data-scroll-target="#regulation-of-the-speed-and-rotation-direction-of-a-dc-motor">Regulation of the speed and rotation direction of a DC motor</a></li>
-  <li><a href="#control-loop-example" id="toc-control-loop-example" class="nav-link" data-scroll-target="#control-loop-example">Control Loop Example</a></li>
+  <li><a href="#assembling-the-breadboard" id="toc-assembling-the-breadboard" class="nav-link" data-scroll-target="#assembling-the-breadboard">Assembling the breadboard</a></li>
+  <li><a href="#led-switch" id="toc-led-switch" class="nav-link" data-scroll-target="#led-switch">LED switch</a></li>
+  <li><a href="#led-toggle" id="toc-led-toggle" class="nav-link" data-scroll-target="#led-toggle">LED toggle</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03-pwm-control.html">Module 3: PWM &amp; Temperature Control</a></li><li class="breadcrumb-item"><a href="./03-pwm-control.html"><span class="chapter-title">PWM, H-Bridges &amp; Temperature Control</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">PWM, H-Bridges &amp; Temperature Control</span></h1>
+<h1 class="title"><span class="chapter-title">GPIO</span></h1>
 </div>
 
 
@@ -277,89 +272,180 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>Pulse-Width Modulation, motor/element driving via H-Bridges, and feedback loop logic.</p>
-</section>
-<section id="pulse-width-modulation-and-led-brightness" class="level2">
-<h2 class="anchored" data-anchor-id="pulse-width-modulation-and-led-brightness">Pulse-Width-Modulation and LED brightness</h2>
-<section id="what-is-pulse-width-modulation" class="level3">
-<h3 class="anchored" data-anchor-id="what-is-pulse-width-modulation">What is Pulse-Width-Modulation ?</h3>
-<p>Pulse-width-modulation (PWM) is probably the most common way to produce an average analog voltage in electrical circuits via fast switching. The idea is simple: if you switch the voltage of a circuit between ON (Vcc volts) and OFF (0 volts) sufficiently fast, you will generate an average response in the circuit proportional to the ratio between the length of time the circuit was ON and overall period of the signal. This ratio is called the duty ratio.</p>
-<p>Not all circuits will respond well to such perturbation. To deliver a smooth response, some local time average is required. If we drive an LED at 10kHz, the component can really switch on and off at this rate, but the eye only perceives the time average of the light emitted, as our response time is of the order of 10s of milliseconds. So this is very effective at creating the illusion of diming the light. In other situation, a low pass filter with a resistor and capacitor can provide the averaging, delivering an output voltage increasing with the duty ratio, as a primitive digital-analog converter.</p>
+<p>In this section, we explore digital inputs and outputs on the microcontroller’s pins, combining a switch and an LED.</p>
+<section id="general-purpose-inputoutput" class="level3">
+<h3 class="anchored" data-anchor-id="general-purpose-inputoutput">General-Purpose Input/Output</h3>
+<p>General-Purpose Input/Output (GPIO) pins are the physical, software-configurable physical pins on a microcontroller that allow it to interact with the outside world. Each pin can be programmed on the fly as an input to read electrical signals from external components like buttons, sensors, or switches, or as an output to drive devices by sending high or low voltage signals to LEDs, relays, or motor controllers. In addition to operating as digital lines (on/off), GPIOs may also offer other advanced features, such as analog voltage readings (ADC), analog voltage outputs (DAC), or serve as hardware buses for standard communication protocols like I2C, SPI, and UART. They form the fundamental bridge between low-level software logic and hardware physics in embedded systems. This is why these pins need to be carefully configured at the start of any device programming applications based on the project requirements.</p>
+<p>The microcontroller’s datasheet and pin layout are available on the <a href="https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html">Raspberry Pi website</a>.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/Duty_Cycle_Examples.png" class="img-fluid figure-img"></p>
-<figcaption>Duty_cycle_PWM</figcaption>
+<p><img src="./resources/pico2w-pinout.svg" class="img-fluid figure-img"></p>
+<figcaption>RP Pico 2 W pinout</figcaption>
 </figure>
 </div>
-<p>This technique is so popular that you can find a full page on <a href="https://en.wikipedia.org/wiki/Pulse-width_modulation">Wikipedia</a> dedicated to it and several tutorials available on internet from <a href="https://www.arduino.cc/en/tutorial/PWM">Arduino</a> and <a href="https://learn.sparkfun.com/tutorials/pulse-width-modulation/all">Sparkfun</a>. You may find this video useful:</p>
-<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/GQLED3gmONg" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
 </section>
-<section id="example---control-led-brightness" class="level3">
-<h3 class="anchored" data-anchor-id="example---control-led-brightness">Example - control LED brightness</h3>
+<section id="pull-down-and-pull-up-resistors" class="level3">
+<h3 class="anchored" data-anchor-id="pull-down-and-pull-up-resistors">Pull-down and pull-up resistors</h3>
+<p>When a GPIO pin is configured as a digital input, it voltage value is by definition not defined, and therefore needs to be controlled by the environment. If the pin isn’t actively connected to a solid voltage source (like 3.3V) or ground (0V), it is in a floating state, susceptible to electrostatic noise and electromagnetic interference, causing the pin’s voltage to drift unpredictably between high and low, leading to erratic readings.</p>
+<p>To avoid this, it is common to connect the pin to either the ground or Vcc with a relatively large resistor, which are called pull-down or pull-up resistors, respectively. This ensures that the default state is well controlled. The circuit below introduces a pull-down resistor for this purpose. You will also notice that the microcontroller itself offers the possibility to connect the GPIO pin to either a pull-up or pull-down resistor, achieving the same outcome. The code examples will also make use of this feature, so that you could remove the physical resistor if you want to. Feel free to explore how this work in due course.</p>
 </section>
 </section>
-<section id="power-electronics-with-a-h-bridge" class="level2">
-<h2 class="anchored" data-anchor-id="power-electronics-with-a-h-bridge">Power electronics with a H-bridge</h2>
-<section id="what-is-a-h-bridge" class="level3">
-<h3 class="anchored" data-anchor-id="what-is-a-h-bridge">What is a H-bridge?</h3>
-<p>Microcontrollers are logical devices that function with very modest power. They are not very good at driving loads, like actuators, which typically require power at their inputs. The problem can be solved through an interface capable of injecting power to the actuator as a function of the logical signals of the microcontroller. This is the role of a H-bridge.</p>
-<p>A H-bridge is a simple device. It is just a switching circuit connected to a large power generator, as shown in the figure below. The four switches S1-S4 route power to the load, represented in the figure by an encircled M (a motor, in this example).</p>
+<section id="assembling-the-breadboard" class="level2">
+<h2 class="anchored" data-anchor-id="assembling-the-breadboard">Assembling the breadboard</h2>
+<p>Please position your Pico, LED and switch as illustrated below. The LED needs a 100-500Ω resistor to limit current. The switch uses a larger, ~10kΩ resistor, to act as a pull-down resistor; it makes sure that the voltage on the Pico’s pin is 0V when the switch is open.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/H_bridge.svg" class="img-fluid figure-img"></p>
-<figcaption>H bridge. Source: Wikipedia</figcaption>
+<p><img src="./resources/PushLED_Diagram.png" class="img-fluid figure-img"></p>
+<figcaption>Breadboard assembly for this section</figcaption>
 </figure>
 </div>
-<p>The switches are typically controlled by the microcontroller.</p>
-<ul>
-<li>If S1 and S4 are closed, and S2 and S3 are open, a positive voltage is applied to the left side of the load (the motor spins in one direction).</li>
-<li>If S2 and S3 are closed, and S1 and S4 are open, a positive voltage is applied to the right side of the load (the motor spins in the other direction).</li>
-<li>If S1 and S3 are closed, and S2 and S4 are open, the same voltage is applied to both sides of the load (the motor does not want to move). The same happens if S2 and S4 are closed, and S1 and S3 are open.</li>
-<li>If either S1 and S2 are closed, or S3 and S4 are closed, the generator is short circuited and terrible things will happen…</li>
-</ul>
-<p>So, by using a H-bridge, you can apply a voltage to your load without strong restrictions on the amount of power. Selecting the configuration of the four switches S1-S4 (ON/OFF) you can also decide the direction of the driving voltage to the load. Finally, to modulate the intensity of the voltage, just use PWM, opening and closing S1-S4 at high frequency to generate a suitable average voltage.</p>
 </section>
-</section>
-<section id="l298n-driver" class="level2">
-<h2 class="anchored" data-anchor-id="l298n-driver">L298N Driver</h2>
-<p>The L298N driver is a dual H-bridge that can be used with voltages between 3.2 V to 40 V and can supply up to 2 A per bridge. To know more about this driver, consults the relevant data-sheet from manufacturers of the :download:<code>driver integrated circuit &lt;docs/L298N.pdf&gt;</code> and the manufacturer of the :download:<code>breakout board &lt;docs/L298N-Motor-Driver-Datasheet.pdf&gt;</code>.</p>
-<p>The image below, from the breakout board datasheet, shows the different inputs and outputs of the circuit.</p>
-<p>.. figure:: images/L298N-Module-Pinout.jpg :scale: 80 % :alt: L298N</p>
-<p>L298N H bridge connections.</p>
-<ul>
-<li><p>Connect an external DC power supply to the ground and +12V Power pins terminal. The power voltage doesn’t need to be 12 V. Any value from 3.2 V to 40 V would work. This power must not be taken from the microcontroller itself. Pay attention to NOT reverse polarity.</p></li>
-<li><p>Here, we will use only one of the two H-bridges. The load will be connected to the Output A terminals.</p></li>
-<li><p>The pins IN1 and IN2 control the switches of the bridge and should be connected to digital outputs of your microcontroller. They would work with both 3.3 V and 5 V logic.</p>
-<ul>
-<li>if IN1 and IN2 are at the same voltage (0 or 3.3 V), then there is no current through the load;</li>
-<li>if IN1 = 1 and IN2 = 0, the current will flow in a certain direction through the load;</li>
-<li>if IN1 = 0 and IN2 = 1, the current will flow in the opposite direction through the load;</li>
-</ul></li>
-<li><p>The pin “A Enable” could be either set to 1 permanently using the jumper, or connected to a PWM input to modulate the load. In the example below, we will use PWM so the jumper needs to be removed and safely stored.</p></li>
-<li><p>the +5V Power pin is not required here. It may be used to actually power the microcontroller, but we use here the USB connection to the computer to deliver power.</p></li>
-<li><p>However, the microcontroller and the L298N H-bridge need to have the same ground. It is therefore important to connect the Power GND terminal of the H-bridge to a GND pin of the microcontroller.</p></li>
-</ul>
-</section>
-<section id="regulation-of-the-speed-and-rotation-direction-of-a-dc-motor" class="level2">
-<h2 class="anchored" data-anchor-id="regulation-of-the-speed-and-rotation-direction-of-a-dc-motor">Regulation of the speed and rotation direction of a DC motor</h2>
-<ul>
-<li><p>Connect a small DC motor to the “Output A” terminals.</p></li>
-<li><p>Configure the power supply to deliver 5 V and up to 1 A. Connect the (-) voltage output of the power supply to the ground of the H-bridge, and the (+) voltage to the “+12V Power” terminal of the bridge.</p></li>
-<li><p>Connect the GND of the microcontroller to the “Power GND” terminal of the bridge. (You can insert two cables if the terminal if needed.)</p></li>
-<li><p>Connect IN1 and IN2 to two digital outputs of the microcontroller. The code below uses the pins D8 and D9.</p></li>
-<li><p>Connect “A enable” to a PWM enabled pin. The code below uses the pin D11.</p></li>
-</ul>
-</section>
-<section id="control-loop-example" class="level2">
-<h2 class="anchored" data-anchor-id="control-loop-example">Control Loop Example</h2>
+<section id="led-switch" class="level2">
+<h2 class="anchored" data-anchor-id="led-switch">LED switch</h2>
+<p>The first project we cover combine a tactile switch (push button) and an LED. We want the LED to be turned on when the switch is pressed, and off otherwise. How would we do this? Think about it for a little while.</p>
+<p>The code below illustrates a simple approach to do that. The first part consists in configuring the GPIOs we need, one as an output to control the LED, and one as an input, to read the state of the button. We also configure the button input with a pull-down resistor, internal to the Pico, so that it should work even without the 10kΩ on the diagram.</p>
+<p>Then the key part of the code consists in running an infinite loop that tests the state of the button and update the state of the LED accordingly. Read it, understand it, and try it on your Pico.</p>
+<p>What would you change to invert the role of the button: LED off when pushed, but on otherwise?</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">MicroPython</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C PWM and Control Loop</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"pico/stdlib.h"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#define LED_PIN    </span><span class="dv">15</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define BUTTON_PIN </span><span class="dv">16</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    stdio_init_all<span class="op">();</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Configure LED pin as digital output</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    gpio_init<span class="op">(</span>LED_PIN<span class="op">);</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    gpio_set_dir<span class="op">(</span>LED_PIN<span class="op">,</span> GPIO_OUT<span class="op">);</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Configure Button pin as digital input</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    gpio_init<span class="op">(</span>BUTTON_PIN<span class="op">);</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    gpio_set_dir<span class="op">(</span>BUTTON_PIN<span class="op">,</span> GPIO_IN<span class="op">);</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Enable internal pull-down resistor so GP16 reads LOW when the button is open</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    gpio_pull_down<span class="op">(</span>BUTTON_PIN<span class="op">);</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="kw">true</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Read the button state (returns true if HIGH/VCC, false if LOW)</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="dt">bool</span> state <span class="op">=</span> gpio_get<span class="op">(</span>BUTTON_PIN<span class="op">);</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Turn LED on if pressed, off if released</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        gpio_put<span class="op">(</span>LED_PIN<span class="op">,</span> state<span class="op">);</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Brief delay to give the CPU a tiny rest</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        sleep_ms<span class="op">(</span><span class="dv">10</span><span class="op">);</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MicroPython PWM and Control Loop</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> machine <span class="im">import</span> Pin</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> utime <span class="im">import</span> sleep</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>LED_PIN <span class="op">=</span> <span class="dv">15</span>       <span class="co"># External LED Pin output</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>BUTTON_PIN <span class="op">=</span> <span class="dv">16</span>       <span class="co"># External LED Pin output</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure LED pin as digital output</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>led <span class="op">=</span> Pin(LED_PIN, Pin.OUT)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure Button pin as digital input</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>push_button <span class="op">=</span> Pin(BUTTON_PIN, Pin.IN, Pin.PULL_DOWN) </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Read the button state (returns true if HIGH/VCC, false if LOW)</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> push_button.value()</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Turn LED on if pressed, off if released</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    led.value(state)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Small sleep prevents 100% CPU lockup and keeps REPL responsive</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    sleep(<span class="fl">0.01</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="led-toggle" class="level2">
+<h2 class="anchored" data-anchor-id="led-toggle">LED toggle</h2>
+<p>The previous example was a nice introduction to LEDs and buttons. Now we are after something a bit more complex. We want the button to toggle the state of the LED every time we press it. How would you do this? What makes this more complex than the previous case? Try to figure out ways to implement this, even if it doesn’t fully work yet.</p>
+<p>The code below shows a way forward. The key issue is that we need to detect an event - the button being pressed, rather than a state. The event corresponds to a change of state, so to detect the event, we keep track of the state and its changes. If the current state of the button pin is high, but was low before, then the button must have been pressed between the last two cycles of the main loop. So we change the state of the LED at this point.</p>
+<p>Try the code, and see if it works. You may play with the delay at the end, uncommenting it and changing the value. Anything unexpected?</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">MicroPython</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"pico/stdlib.h"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#define LED_PIN    </span><span class="dv">15</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define BUTTON_PIN </span><span class="dv">16</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    stdio_init_all<span class="op">();</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Configure LED pin as digital output</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    gpio_init<span class="op">(</span>LED_PIN<span class="op">);</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    gpio_set_dir<span class="op">(</span>LED_PIN<span class="op">,</span> GPIO_OUT<span class="op">);</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Configure Button pin as digital input with internal pull-down</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    gpio_init<span class="op">(</span>BUTTON_PIN<span class="op">);</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    gpio_set_dir<span class="op">(</span>BUTTON_PIN<span class="op">,</span> GPIO_IN<span class="op">);</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    gpio_pull_down<span class="op">(</span>BUTTON_PIN<span class="op">);</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Track states</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> led_state <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> last_button_state <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="kw">true</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="dt">bool</span> current_button_state <span class="op">=</span> gpio_get<span class="op">(</span>BUTTON_PIN<span class="op">);</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Check for a press event (LOW -&gt; HIGH transition)</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>current_button_state <span class="op">&amp;&amp;</span> <span class="op">!</span>last_button_state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>            led_state <span class="op">=</span> <span class="op">!</span>led_state<span class="op">;</span>           <span class="co">// Flip the state tracking variable</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>            gpio_put<span class="op">(</span>LED_PIN<span class="op">,</span> led_state<span class="op">);</span>     <span class="co">// Apply the state to the pin</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Save state for the next pass</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        last_button_state <span class="op">=</span> current_button_state<span class="op">;</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Brief delay for basic loop control</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Try to uncomment it and see what happens.</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>        <span class="co">//sleep_ms(30);</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> machine <span class="im">import</span> Pin</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>LED_PIN <span class="op">=</span> <span class="dv">15</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>BUTTON_PIN <span class="op">=</span> <span class="dv">16</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure LED pin as digital output</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>led <span class="op">=</span> Pin(LED_PIN, Pin.OUT)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure Button pin as digital input with internal pull-down</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>button <span class="op">=</span> Pin(BUTTON_PIN, Pin.IN, Pin.PULL_DOWN)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Track states</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>led_state <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>last_button_state <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    current_button_state <span class="op">=</span> button.value()</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Check for a press event (LOW -&gt; HIGH transition)</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> current_button_state <span class="kw">and</span> <span class="kw">not</span> last_button_state:</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        led_state <span class="op">=</span> <span class="kw">not</span> led_state  <span class="co"># Flip the state tracking variable</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        led.value(led_state)  <span class="co"># Apply the state to the pin</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Save state for the next pass</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    last_button_state <span class="op">=</span> current_button_state</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Brief delay for basic loop control</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Try to uncomment it and see what happens.</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># time.sleep_ms(30)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -770,13 +856,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./02-assignment.html" class="pagination-link" aria-label="Assignment 2: I2C Sensors">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Assignment 2: I2C Sensors</span></span>
+      <a href="./getting-started.html" class="pagination-link" aria-label="Getting Started">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Getting Started</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./03-assignment.html" class="pagination-link" aria-label="Assignment 3: Temperature Control">
-        <span class="nav-page-text"><span class="chapter-title">Assignment 3: Temperature Control</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./01-interrupts.html" class="pagination-link" aria-label="Interrupts">
+        <span class="nav-page-text"><span class="chapter-title">Interrupts</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
