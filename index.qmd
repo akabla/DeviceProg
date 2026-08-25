@@ -1,6 +1,12 @@
 # Introduction {.unnumbered}
 
-Welcome to the Embedded Computing course. 
+Welcome to the Device Programming course. 
 
 ## Overview
-Brief introduction to the goals, prerequisites, and learning outcomes of this course.
+
+After this series of practicals, you will be able to:
+
+- explain the principles behind wired communication between devices
+
+- program a microcontroller and control sensors and actuators
+

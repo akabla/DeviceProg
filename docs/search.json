@@ -2,9 +2,9 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Embedded Computing",
+    "title": "Device programming",
     "section": "",
-    "text": "Introduction\nWelcome to the Embedded Computing course.",
+    "text": "Introduction\nWelcome to the Device Programming course.",
     "crumbs": [
       "Introduction"
     ]
@@ -12,9 +12,9 @@
   {
     "objectID": "index.html#overview",
     "href": "index.html#overview",
-    "title": "Embedded Computing",
+    "title": "Device programming",
     "section": "Overview",
-    "text": "Overview\nBrief introduction to the goals, prerequisites, and learning outcomes of this course.",
+    "text": "Overview\nAfter this series of practicals, you will be able to:\n\nexplain the principles behind wired communication between devices\nprogram a microcontroller and control sensors and actuators",
     "crumbs": [
       "Introduction"
     ]

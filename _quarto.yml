@@ -3,8 +3,8 @@ project:
   output-dir: docs
 
 book:
-  title: "Embedded Computing"
-  author: "Course Instructor"
+  title: "Device programming"
+  author: "Prof Alexandre Kabla"
   sidebar:
     style: "docked"
     search: true
