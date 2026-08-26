@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>I2C &amp; Temperature Sensors – Embedded Computing</title>
+<title>I2C &amp; Temperature Sensors – Device programming</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -138,7 +138,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Embedded Computing</a> 
+      <a href="./">Device programming</a> 
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -283,18 +283,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
 <p>In this module, we will connect and use an I2C component, a temperature sensor.</p>
 <ul>
-<li><p>First, we will test connect the hardware and test the connection by scanning the bus - seeing which addresses on the bus lead to devices ackowledging the call.</p></li>
+<li><p>First, we will test and connect the hardware and test the connection by scanning the bus - seeing which addresses on the bus lead to devices ackowledging the call.</p></li>
 <li><p>Then we will dissect the data sheet of the sensor and figure out how it works.</p></li>
-<li><p>We will perform temperature measurements with device.</p></li>
-<li><p>Finally we will use sensor’s ability to respond to temperature thresholds by triggering an interrupt.</p></li>
+<li><p>We will perform temperature measurements with the device.</p></li>
+<li><p>Finally we will use the sensor’s ability to respond to temperature thresholds by triggering an interrupt.</p></li>
 </ul>
 </section>
 <section id="testing-devices-on-the-bus---the-bus-scan" class="level2">
 <h2 class="anchored" data-anchor-id="testing-devices-on-the-bus---the-bus-scan">Testing devices on the bus - the bus-scan</h2>
 <p>There are several I2C hardware peripherals on the Pico microprocessor, and a range of pins can be selected for the connection. Check the pin-out to identify options.</p>
-<p>The code examples below assume that you are connected to the peripheral I2C 0, using the pin 4 for SDA and 5 for SCL.</p>
-<p>Use jumper wires to connect your sensor to the Pico. The ground and Vcc need to be connected too.</p>
-<p>When this is done, run the code below to see if your device is detected. It essentially sends a request on all available addresses and detect which device has acknowledge the request. The output is presented as a table, 16 columns and 8 rows, covering the 128 value range. Note that the first and last 8 values are reserved in the protocol, and it is best not to probe them.</p>
+<p>The code examples below assume that you are connected to the peripheral I2C 0, using the pin 4 for SDA and 5 for SCL. Check the pinout of your board to identify these connections.</p>
+<p>Use jumper wires to connect your sensor to the Pico. The ground and Vcc (3.3V) need to be connected too. Ignore the OS pin for now.</p>
+<p>When this is done, run the code below to see if your device is detected. It essentially sends a request on all available addresses and detect which devices have acknowledged the request. The output is presented as a table, 16 columns and 8 rows, covering the 128 value range. Note that the first and last 8 values are reserved in the protocol, and it is best not to probe them at all.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">MicroPython</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -412,25 +412,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<p>If all goes well, you should see that one device is connected, with an <code>@</code> at the sensor’s address.</p>
 </section>
 <section id="the-sensors-datasheet" class="level2">
 <h2 class="anchored" data-anchor-id="the-sensors-datasheet">The sensor’s datasheet</h2>
-<p>For any device you wish to connect using I&nbsp;:sup:<code>2</code>&nbsp;C, you will need to:</p>
+<p>For any device you wish to connect using I2C, you will need to:</p>
 <ul>
-<li><p>identify or set the device address;</p></li>
+<li><p>identify (or set) the device address;</p></li>
 <li><p>configure the device if needed, by setting the value of different registers controlling the operation of the device;</p></li>
 <li><p>read and send data to the device.</p></li>
 </ul>
-<p>All this information can be found in the data sheet of the device you are planning to use. Make sure you check the availability of a good documentation before selecting a device.</p>
-<p>We will work with a sensor produced by NXP, with a rather good documentation to support the work of the developer. The data sheet of the LM75 sensor you will use is available <a href="resources/temp_sensor_lm75b.pdf">here</a>.</p>
-<p>This is daunting document! It probably contains many technical words you are not familiar with (yet). However, you don’t need to understand it all to get to use the device in your application. Have a quick scan through it at first. If you know what you are looking for, you will get this information out of it quickly enough afterwards.</p>
-<p>Consult the data-sheet of the sensor to identify its I2C address. You’ll see that there is actually a range of address. How to set it? Your sensor is already soldered to a breakout board. Look at the back of the breakout board, and try to understand how to set the address of the device.</p>
-<p>Most of the time, there will also be sample codes available to you online, or good AI models to get you started. But being able to understand the content of the datasheet ensures that you are able to appreciate the full feature set of your device and understand its limitations.</p>
+<p>All this information can be found in the data sheet of the device you are planning to use. Make sure you check the availability of good documentation before selecting a device.</p>
+<p>We will work with a sensor produced by NXP, with a clear documentation to support the work of the developer. The data sheet of the LM75 sensor you will use is available <a href="resources/temp_sensor_lm75b.pdf">here</a>.</p>
+<p>This is a daunting document! It probably contains many technical words you are not familiar with (yet). However, you don’t need to understand it all to get to use the device in your application. Have a quick scan through it at first. Once you know what you are looking for, you will get this information out of it quickly enough afterwards.</p>
+<p>Consult the data-sheet of the sensor to identify its I2C address. You’ll see that there is actually a range of addresses. How to set it? Your sensor is already soldered to a breakout board. Look at the back of the breakout board, and try to understand how to set the address of the device.</p>
+<p>Most of the time, there will also be sample code available to you online, or good AI models to get you started, and even finished for simple enough tasks. But being able to understand the content of the datasheet ensures that you are able to appreciate the full feature set of your device, understand its limitations, and critically assess the suitability of the code you or a model generated.</p>
 <section id="device-registers" class="level3">
 <h3 class="anchored" data-anchor-id="device-registers">Device registers</h3>
 <p>Section 7.4 of the datasheet lists the four data registers present in the sensor (see table 5 in datasheet). A register is a small section of memory to store a few bytes of data that the device needs.</p>
 <ul>
-<li><p>The configuration register controls the different modes of operation of the device; you can read or write on it, although you would most likely simply write on it to set the desired behaviour of the sensor. Each bit of the register controls a certain behaviour of the sensor.</p></li>
+<li><p>The configuration register controls the different modes of operation of the device; you can read or write to it, although you would most likely simply write on it to set the desired behaviour of the sensor. Each bit of the register controls a certain behaviour of the sensor.</p></li>
 <li><p>The temp register contains the last temperature reading; it is read only, as expected.</p></li>
 <li><p>The other two registers contain the information needed to control the threshold temperatures, and will be further discussed in the next section of the tutorial.</p></li>
 </ul>
@@ -438,22 +439,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="reading-and-writing-on-the-registers" class="level3">
 <h3 class="anchored" data-anchor-id="reading-and-writing-on-the-registers">Reading and writing on the registers</h3>
-<p>Each register has an address. There is a special register in the device called pointer register that sets which data register will be involved in the following reading or writing operation. We do not need to worry too much about the details, as communications will be handled by special functions in the mbed I2C library. But it is important to understand the sequence of typical I2C communications to be able to use properly these high level functions.</p>
-<p>A typical sequence to write in the data registers consists in sending through I2C the device address (7 bits and R/W bit set to W), followed by the value of the pointer register, to indicate which data register we want to write on, and the data to store on this register (see figs 7 and 11 in the datasheet).</p>
-<p>To read, a similar process is followed, but two steps are needed (See figs 8 and 11 in the datasheet). First, we send to the I2C bus the device address (7 bits and R/W bit set to W), followed by the value of the pointer register to indicate what we would want to read. The microcontroller would then send another start signal. The next part involves sending again to the I2C bus the device address, but this time with the R/W bit set to R. The master (microcontroller) would continue to control the clock, but this time the slave (sensor) would control the data line, and send, one byte at a time, the data requested.</p>
+<p>Each register has an address. There is a special register in the device called pointer register that sets which data register will be involved in the following reading or writing operation.</p>
+<p>A typical sequence to write in the data registers of this device consists in sending through I2C the device address (7 bits and R/W bit set to W), followed by the value of the pointer register, to indicate which data register we want to write on, followed by the data to store on this register (see figs 7 and 11 in the datasheet).</p>
+<p>To read, a similar process is followed, but two steps are needed (See figs 8 and 11 in the datasheet).</p>
+<ul>
+<li>First, we send to the I2C bus the device address (7 bits and R/W bit set to W), followed by the value of the pointer register to indicate what we would want to read.</li>
+<li>The microcontroller would then initiate another transaction with a start signal, and send again to the I2C bus the device address, but this time with the R/W bit set to R. The controller device (your microcontroller) would continue to control the clock afterwards, but this time the target (sensor) would control the data line, and send, one byte at a time, the data requested.</li>
+</ul>
 </section>
 </section>
 <section id="first-temperature-measurement" class="level2">
 <h2 class="anchored" data-anchor-id="first-temperature-measurement">First temperature measurement</h2>
 <section id="binary-arithmetics-for-temperature-data" class="level3">
 <h3 class="anchored" data-anchor-id="binary-arithmetics-for-temperature-data">Binary arithmetics for temperature data</h3>
-<p>Transforming data buffers into floating point temperature, and vice-versa, is a tricky task. You may not need to create such code, and could reuse the relevant sections of the examples code provided, but it helps to understand how they work.</p>
-<p>The way temperatures are stored on the registers is defined in section 7.4.3 and 7.4.4. Have a look at it first. This is the content of the buffer data_read at the start:</p>
+<p>Transforming data buffers into floating point temperature, and vice-versa, could be a tricky task. You may not need to create such code yourself, and could reuse the relevant sections of the examples code provided, but it helps to understand how they work.</p>
+<p>The way temperatures are stored on the registers is defined in section 7.4.3 and 7.4.4. Have a look at it first.</p>
+<p>When temperature data is received from the sensor, it is collected in a buffer (array) of two bytes, as data is transferred one byte at a time. This is the content of the buffer <code>buf</code> at this point:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th style="text-align: center;">data_read[0] (8 bits)</th>
-<th style="text-align: center;">data_read[1] (8 bits)</th>
+<th style="text-align: center;">buf[0] (8 bits)</th>
+<th style="text-align: center;">buf[1] (8 bits)</th>
 </tr>
 </thead>
 <tbody>
@@ -463,7 +469,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>These 11 bits represents the whole temperature range, with a 0.125 degree Celsius precision, i.e.&nbsp;1/8 of a degree. The binary value of each bit, including sign, is detailed in the table below:</p>
+<p>These 11 bits represent the whole temperature range, with a 0.125 degree Celsius precision, i.e.&nbsp;1/8 of a degree. The binary value of each bit, including sign, is detailed in the table below:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -498,8 +504,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>The sign convention follows an approach called <a href="https://en.wikipedia.org/wiki/Two%27s_complement">two’s complement</a>. Table 10 of the datasheet shows examples of temperature values and their equivalent representation in bits.</p>
 <p>The gist of what follows consists in manipulating the bit array to extract the exact value of the temperature. You may want to learn a bit about <a href="https://en.wikipedia.org/wiki/Bitwise_operations_in_C">bitwise operations in C</a> if you never encountered this before.</p>
-<p>The mbed example code for the LM75 sensor does something really complicated and long winded to build the temperature as a text. The appendix below explains what it does, but we are going to explain here a much simpler method.</p>
-<p>The representation we get from the sensor, stored in data_read, is not too far from the representation of a 16-bit signed integer:</p>
+<p>The representation we get from the sensor, stored in <code>buf</code>, is not too far from the representation of a 16-bit signed integer:</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 4%">
@@ -563,9 +568,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>If we were to paste the 16 bits of data_read in a 16-bit integer, we would get a number that is the temperature scaled by a factor 256, since the bit corresponding to 1 celsius in the sensor data corresponds to 256 in the 16-bit int. This may be a good strategy to follow.</p>
-<p>To use precisely defined integer types, we will use the header file <a href="https://en.wikibooks.org/wiki/C_Programming/stdint.h">stdint.h</a>:</p>
-<p>would create this :</p>
+<p>If we were to directly paste the 16 bits of <code>buf</code> in a 16-bit integer, we would get a number that is the temperature scaled by a factor 256, since the bit corresponding to 1 celsius in the sensor data corresponds to 256 in the 16-bit int. This is a good strategy to follow.</p>
+<p>The micropython code does this directly, using the command <code>int.from_bytes</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    raw_temp <span class="op">=</span> <span class="bu">int</span>.from_bytes(buf, <span class="st">'big'</span>, <span class="va">True</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw_temp <span class="op">/</span> <span class="fl">256.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>In C, we need to be more explicit with how the bit are manipulated.</p>
+<p>First, we extend to 16 bit the first byte <code>buf[0]</code>.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 6%">
@@ -595,7 +603,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <th></th>
 <th></th>
 <th></th>
-<th>data_read[0]</th>
+<th>buf[0]</th>
 <th></th>
 <th></th>
 <th></th>
@@ -648,7 +656,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </colgroup>
 <thead>
 <tr class="header">
-<th>data_read[0]</th>
+<th>buf[0]</th>
 <th></th>
 <th></th>
 <th></th>
@@ -709,7 +717,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </colgroup>
 <thead>
 <tr class="header">
-<th>data_read[0]</th>
+<th>buf[0]</th>
 <th></th>
 <th></th>
 <th></th>
@@ -717,7 +725,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <th></th>
 <th></th>
 <th></th>
-<th>data_read[1]</th>
+<th>buf[1]</th>
 <th></th>
 <th></th>
 <th></th>
@@ -748,8 +756,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>To get the temperature in degree Celsius, we need to divide this number by 256, making sure the output is a floating point number. To indicate to the compiler that we want the floating point division, we write 256 with a decimal point, 256.0. The conversion code therefore becomes:</p>
+<p>Note that the sign bit is on the left, as expected, so it will be interpreted correctly. To get the temperature in degrees Celsius, we need to divide this number by 256, making sure the output is a floating point number. To indicate to the compiler that we want the floating point division, we write 256 as a float, with a decimal point, 256.0. The conversion code therefore becomes:</p>
 <p>Overall, the code with the new conversion function would be:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int16_t</span> raw_temp <span class="op">=</span> <span class="op">(</span><span class="dt">int16_t</span><span class="op">)((</span>buf<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">&lt;&lt;</span> <span class="dv">8</span><span class="op">)</span> <span class="op">|</span> buf<span class="op">[</span><span class="dv">1</span><span class="op">]);</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw_temp <span class="op">/</span> <span class="fl">256.0</span><span class="bu">f</span><span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="code-sample" class="level3">
 <h3 class="anchored" data-anchor-id="code-sample">Code sample</h3>
@@ -758,188 +768,186 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">MicroPython</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"pico/stdlib.h"</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"hardware/i2c.h"</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"hardware/gpio.h"</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Hardware Configuration</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#define I2C_PORT i2c0</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#define SDA_PIN </span><span class="dv">4</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#define SCL_PIN </span><span class="dv">5</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">// LM75B Address &amp; Registers</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="pp">#define LM75B_ADDR </span><span class="bn">0x48</span><span class="pp">  </span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#define REG_TEMP   </span><span class="bn">0x00</span><span class="pp">  </span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="pp">#define REG_CONF   </span><span class="bn">0x01</span><span class="pp">  </span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">// I2C Bus Scanner</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> i2c_scan<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"</span><span class="sc">\n</span><span class="st">--- Scanning I2C Bus ---</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> addr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> addr <span class="op">&lt;</span> <span class="dv">128</span><span class="op">;</span> addr<span class="op">++)</span> <span class="op">{</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">"</span><span class="sc">%02X</span><span class="st">: "</span><span class="op">,</span> addr<span class="op">);</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Reserve I2C addresses (0x00-0x07 and 0x78-0x7F)</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">((</span>addr <span class="op">&amp;</span> <span class="bn">0x78</span><span class="op">)</span> <span class="op">==</span> <span class="dv">0</span> <span class="op">||</span> <span class="op">(</span>addr <span class="op">&amp;</span> <span class="bn">0x78</span><span class="op">)</span> <span class="op">==</span> <span class="bn">0x78</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">"   "</span><span class="op">);</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>            <span class="dt">uint8_t</span> rxdata<span class="op">;</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int</span> result <span class="op">=</span> i2c_read_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> addr<span class="op">,</span> <span class="op">&amp;</span>rxdata<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>result <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">" @ "</span><span class="op">);</span> <span class="co">// Device ACK received</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">" . "</span><span class="op">);</span> <span class="co">// No device ACK</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">15</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"</span><span class="sc">\n</span><span class="st">--- Scan Complete ---</span><span class="sc">\n\n</span><span class="st">"</span><span class="op">);</span></span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="co">// Convert 16-bit register value to Celsius float</span></span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> read_temperature<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> reg <span class="op">=</span> REG_TEMP<span class="op">;</span></span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> buf<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">};</span></span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    i2c_write_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> <span class="op">&amp;</span>reg<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="kw">true</span><span class="op">);</span></span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    i2c_read_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> buf<span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int16_t</span> raw_temp <span class="op">=</span> <span class="op">(</span><span class="dt">int16_t</span><span class="op">)((</span>buf<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">&lt;&lt;</span> <span class="dv">8</span><span class="op">)</span> <span class="op">|</span> buf<span class="op">[</span><span class="dv">1</span><span class="op">]);</span></span>
-<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw_temp <span class="op">/</span> <span class="fl">256.0</span><span class="bu">f</span><span class="op">;</span></span>
-<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a><span class="co">// Configure LM75B in Comparator mode</span></span>
-<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> configure_lm75b<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> buf<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
-<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> REG_CONF<span class="op">;</span></span>
-<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="bn">0x00</span><span class="op">;</span> <span class="co">// Comparator mode, OS Active LOW</span></span>
-<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    i2c_write_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> buf<span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
-<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    stdio_init_all<span class="op">();</span></span>
-<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    sleep_ms<span class="op">(</span><span class="dv">10000</span><span class="op">);</span> <span class="co">// Give serial monitor time to connect</span></span>
-<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initialize I2C Peripheral</span></span>
-<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>    i2c_init<span class="op">(</span>I2C_PORT<span class="op">,</span> <span class="dv">100</span> <span class="op">*</span> <span class="dv">1000</span><span class="op">);</span></span>
-<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>    gpio_set_function<span class="op">(</span>SDA_PIN<span class="op">,</span> GPIO_FUNC_I2C<span class="op">);</span></span>
-<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    gpio_set_function<span class="op">(</span>SCL_PIN<span class="op">,</span> GPIO_FUNC_I2C<span class="op">);</span></span>
-<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    gpio_pull_up<span class="op">(</span>SDA_PIN<span class="op">);</span></span>
-<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>    gpio_pull_up<span class="op">(</span>SCL_PIN<span class="op">);</span></span>
-<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Perform aligned I2C bus scan</span></span>
-<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>    i2c_scan<span class="op">();</span></span>
-<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Configure LM75B sensor</span></span>
-<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>    configure_lm75b<span class="op">();</span></span>
-<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"LM75B Running.</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
-<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"SDA pin: </span><span class="sc">%d</span><span class="st"> | SCL pin: </span><span class="sc">%d</span><span class="st"> | OS pin: </span><span class="sc">%d</span><span class="st"> </span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> </span>
-<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>           SDA_PIN<span class="op">,</span> SCL_PIN<span class="op">,</span> OS_INT_PIN<span class="op">);</span></span>
-<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"Measurements start in 1 sec.</span><span class="sc">\n\n</span><span class="st">"</span><span class="op">);</span> </span>
-<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>    sleep_ms<span class="op">(</span><span class="dv">1000</span><span class="op">);</span> <span class="co">// Give serial monitor time to connect</span></span>
-<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Main Loop</span></span>
-<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="kw">true</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> temp <span class="op">=</span> read_temperature<span class="op">();</span></span>
-<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">"Current Temperature: </span><span class="sc">%.2f</span><span class="st"> C</span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> temp<span class="op">);</span></span>
-<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>        sleep_ms<span class="op">(</span><span class="dv">1000</span><span class="op">);</span></span>
-<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"pico/stdlib.h"</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"hardware/i2c.h"</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"hardware/gpio.h"</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Hardware Configuration</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#define I2C_PORT i2c0</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#define SDA_PIN </span><span class="dv">4</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#define SCL_PIN </span><span class="dv">5</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">// LM75B Address &amp; Registers</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="pp">#define LM75B_ADDR </span><span class="bn">0x48</span><span class="pp">  </span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#define REG_TEMP   </span><span class="bn">0x00</span><span class="pp">  </span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="pp">#define REG_CONF   </span><span class="bn">0x01</span><span class="pp">  </span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">// I2C Bus Scanner</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> i2c_scan<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"</span><span class="sc">\n</span><span class="st">--- Scanning I2C Bus ---</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> addr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> addr <span class="op">&lt;</span> <span class="dv">128</span><span class="op">;</span> addr<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">"</span><span class="sc">%02X</span><span class="st">: "</span><span class="op">,</span> addr<span class="op">);</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Reserve I2C addresses (0x00-0x07 and 0x78-0x7F)</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">((</span>addr <span class="op">&amp;</span> <span class="bn">0x78</span><span class="op">)</span> <span class="op">==</span> <span class="dv">0</span> <span class="op">||</span> <span class="op">(</span>addr <span class="op">&amp;</span> <span class="bn">0x78</span><span class="op">)</span> <span class="op">==</span> <span class="bn">0x78</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">"   "</span><span class="op">);</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>            <span class="dt">uint8_t</span> rxdata<span class="op">;</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int</span> result <span class="op">=</span> i2c_read_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> addr<span class="op">,</span> <span class="op">&amp;</span>rxdata<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>result <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">" @ "</span><span class="op">);</span> <span class="co">// Device ACK received</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">" . "</span><span class="op">);</span> <span class="co">// No device ACK</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">15</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"</span><span class="sc">\n</span><span class="st">--- Scan Complete ---</span><span class="sc">\n\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="co">// Convert 16-bit register value to Celsius float</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> read_temperature<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> reg <span class="op">=</span> REG_TEMP<span class="op">;</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> buf<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">};</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>    i2c_write_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> <span class="op">&amp;</span>reg<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="kw">true</span><span class="op">);</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>    i2c_read_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> buf<span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int16_t</span> raw_temp <span class="op">=</span> <span class="op">(</span><span class="dt">int16_t</span><span class="op">)((</span>buf<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">&lt;&lt;</span> <span class="dv">8</span><span class="op">)</span> <span class="op">|</span> buf<span class="op">[</span><span class="dv">1</span><span class="op">]);</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw_temp <span class="op">/</span> <span class="fl">256.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="co">// Configure LM75B in Comparator mode</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> configure_lm75b<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> buf<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> REG_CONF<span class="op">;</span></span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="bn">0x00</span><span class="op">;</span> <span class="co">// Comparator mode, OS Active LOW</span></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>    i2c_write_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> buf<span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>    stdio_init_all<span class="op">();</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>    sleep_ms<span class="op">(</span><span class="dv">10000</span><span class="op">);</span> <span class="co">// Give serial monitor time to connect</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initialize I2C Peripheral</span></span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>    i2c_init<span class="op">(</span>I2C_PORT<span class="op">,</span> <span class="dv">100</span> <span class="op">*</span> <span class="dv">1000</span><span class="op">);</span></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>    gpio_set_function<span class="op">(</span>SDA_PIN<span class="op">,</span> GPIO_FUNC_I2C<span class="op">);</span></span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>    gpio_set_function<span class="op">(</span>SCL_PIN<span class="op">,</span> GPIO_FUNC_I2C<span class="op">);</span></span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>    gpio_pull_up<span class="op">(</span>SDA_PIN<span class="op">);</span></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>    gpio_pull_up<span class="op">(</span>SCL_PIN<span class="op">);</span></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Perform aligned I2C bus scan</span></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>    i2c_scan<span class="op">();</span></span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Configure LM75B sensor</span></span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a>    configure_lm75b<span class="op">();</span></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"LM75B Running.</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"SDA pin: </span><span class="sc">%d</span><span class="st"> | SCL pin: </span><span class="sc">%d</span><span class="st"> : </span><span class="sc">%d</span><span class="st"> </span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> </span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>           SDA_PIN<span class="op">,</span> SCL_PIN<span class="op">);</span></span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"Measurements start in 1 sec.</span><span class="sc">\n\n</span><span class="st">"</span><span class="op">);</span> </span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a>    sleep_ms<span class="op">(</span><span class="dv">1000</span><span class="op">);</span> <span class="co">// Give serial monitor time to connect</span></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Main Loop</span></span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="kw">true</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> temp <span class="op">=</span> read_temperature<span class="op">();</span></span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">"Current Temperature: </span><span class="sc">%.2f</span><span class="st"> C</span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> temp<span class="op">);</span></span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>        sleep_ms<span class="op">(</span><span class="dv">1000</span><span class="op">);</span></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> machine <span class="im">import</span> Pin, I2C</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Hardware Configuration</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>I2C_PORT <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>SDA_PIN <span class="op">=</span> <span class="dv">4</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>SCL_PIN <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>OS_INT_PIN <span class="op">=</span> <span class="dv">16</span>    <span class="co"># LM75B OS Alert Pin input</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>LED_PIN <span class="op">=</span> <span class="dv">15</span>       <span class="co"># External LED Pin output</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># LM75B Address &amp; Registers</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>LM75B_ADDR <span class="op">=</span> <span class="bn">0x48</span>  </span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>REG_TEMP <span class="op">=</span> <span class="bn">0x00</span>  </span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>REG_CONF <span class="op">=</span> <span class="bn">0x01</span>  </span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># I2C Bus Scanner</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> i2c_scan(i2c):</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Scanning I2C Bus ---"</span>)</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F"</span>)</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    devices <span class="op">=</span> <span class="bu">set</span>(i2c.scan())</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> addr <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">128</span>):</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>addr<span class="sc">:02X}</span><span class="ss">: "</span>, end<span class="op">=</span><span class="st">""</span>)</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Reserve I2C addresses (0x00-0x07 and 0x78-0x7F)</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (addr <span class="op">&amp;</span> <span class="bn">0x78</span>) <span class="op">==</span> <span class="dv">0</span> <span class="kw">or</span> (addr <span class="op">&amp;</span> <span class="bn">0x78</span>) <span class="op">==</span> <span class="bn">0x78</span>:</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"   "</span>, end<span class="op">=</span><span class="st">""</span>)</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> addr <span class="kw">in</span> devices:</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">" @ "</span>, end<span class="op">=</span><span class="st">""</span>)  <span class="co"># Device ACK received</span></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">" . "</span>, end<span class="op">=</span><span class="st">""</span>)  <span class="co"># No device ACK</span></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">15</span>:</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>()</span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Scan Complete ---</span><span class="ch">\n</span><span class="st">"</span>)</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert 16-bit register value to Celsius float</span></span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_temperature(i2c):</span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="co"># stop=False generates a Repeated START condition</span></span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    i2c.writeto(LM75B_ADDR, <span class="bu">bytes</span>([REG_TEMP]), <span class="va">False</span>)</span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> i2c.readfrom(LM75B_ADDR, <span class="dv">2</span>)</span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Unpack 16-bit signed integer (Big-Endian)</span></span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    raw_temp <span class="op">=</span> <span class="bu">int</span>.from_bytes(buf, <span class="st">'big'</span>, <span class="va">True</span>)</span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw_temp <span class="op">/</span> <span class="fl">256.0</span></span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure LM75B in Comparator mode</span></span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> configure_lm75b(i2c):</span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 0x00 = Comparator mode, OS Active LOW</span></span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    i2c.writeto(LM75B_ADDR, <span class="bu">bytes</span>([REG_CONF, <span class="bn">0x00</span>]))</span>
-<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize I2C Peripheral (100 kHz)</span></span>
-<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>i2c <span class="op">=</span> I2C(I2C_PORT, sda<span class="op">=</span>Pin(SDA_PIN), scl<span class="op">=</span>Pin(SCL_PIN), freq<span class="op">=</span><span class="dv">100000</span>)</span>
-<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform aligned I2C bus scan</span></span>
-<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>i2c_scan(i2c)</span>
-<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure LM75B sensor &amp; Apply defined thresholds</span></span>
-<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>configure_lm75b(i2c)</span>
-<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"LM75B Running."</span>)</span>
-<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"SDA pin: </span><span class="sc">{</span>SDA_PIN<span class="sc">}</span><span class="ss"> | SCL pin: </span><span class="sc">{</span>SCL_PIN<span class="sc">}</span><span class="ss"> | OS pin: </span><span class="sc">{</span>OS_INT_PIN<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Measurements start in 1 sec.</span><span class="ch">\n</span><span class="st">"</span>)</span>
-<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">1</span>)</span>
-<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a><span class="co"># Main Loop</span></span>
-<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>    temp <span class="op">=</span> read_temperature(i2c)</span>
-<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Current Temperature: </span><span class="sc">{</span>temp<span class="sc">:.2f}</span><span class="ss"> C"</span>)</span>
-<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> machine <span class="im">import</span> Pin, I2C</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Hardware Configuration</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>I2C_PORT <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>SDA_PIN <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>SCL_PIN <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># LM75B Address &amp; Registers</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>LM75B_ADDR <span class="op">=</span> <span class="bn">0x48</span>  </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>REG_TEMP <span class="op">=</span> <span class="bn">0x00</span>  </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>REG_CONF <span class="op">=</span> <span class="bn">0x01</span>  </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co"># I2C Bus Scanner</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> i2c_scan(i2c):</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Scanning I2C Bus ---"</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F"</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    devices <span class="op">=</span> <span class="bu">set</span>(i2c.scan())</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> addr <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">128</span>):</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>addr<span class="sc">:02X}</span><span class="ss">: "</span>, end<span class="op">=</span><span class="st">""</span>)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Reserve I2C addresses (0x00-0x07 and 0x78-0x7F)</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (addr <span class="op">&amp;</span> <span class="bn">0x78</span>) <span class="op">==</span> <span class="dv">0</span> <span class="kw">or</span> (addr <span class="op">&amp;</span> <span class="bn">0x78</span>) <span class="op">==</span> <span class="bn">0x78</span>:</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"   "</span>, end<span class="op">=</span><span class="st">""</span>)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> addr <span class="kw">in</span> devices:</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">" @ "</span>, end<span class="op">=</span><span class="st">""</span>)  <span class="co"># Device ACK received</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">" . "</span>, end<span class="op">=</span><span class="st">""</span>)  <span class="co"># No device ACK</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">15</span>:</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>()</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Scan Complete ---</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert 16-bit register value to Celsius float</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_temperature(i2c):</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># stop=False generates a Repeated START condition</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    i2c.writeto(LM75B_ADDR, <span class="bu">bytes</span>([REG_TEMP]), <span class="va">False</span>)</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> i2c.readfrom(LM75B_ADDR, <span class="dv">2</span>)</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Unpack 16-bit signed integer (Big-Endian)</span></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>    raw_temp <span class="op">=</span> <span class="bu">int</span>.from_bytes(buf, <span class="st">'big'</span>, <span class="va">True</span>)</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw_temp <span class="op">/</span> <span class="fl">256.0</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure LM75B in Comparator mode</span></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> configure_lm75b(i2c):</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 0x00 = Comparator mode, OS Active LOW</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>    i2c.writeto(LM75B_ADDR, <span class="bu">bytes</span>([REG_CONF, <span class="bn">0x00</span>]))</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize I2C Peripheral (100 kHz)</span></span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>i2c <span class="op">=</span> I2C(I2C_PORT, sda<span class="op">=</span>Pin(SDA_PIN), scl<span class="op">=</span>Pin(SCL_PIN), freq<span class="op">=</span><span class="dv">100000</span>)</span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform aligned I2C bus scan</span></span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>i2c_scan(i2c)</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure LM75B sensor &amp; Apply defined thresholds</span></span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>configure_lm75b(i2c)</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"LM75B Running."</span>)</span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"SDA pin: </span><span class="sc">{</span>SDA_PIN<span class="sc">}</span><span class="ss"> | SCL pin: </span><span class="sc">{</span>SCL_PIN<span class="sc">}</span><span class="ss"> "</span>)</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Measurements start in 1 sec.</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">1</span>)</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a><span class="co"># Main Loop</span></span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>    temp <span class="op">=</span> read_temperature(i2c)</span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Current Temperature: </span><span class="sc">{</span>temp<span class="sc">:.2f}</span><span class="ss"> C"</span>)</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -951,7 +959,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="register-configuration">Register configuration</h3>
 <p>Read section 7.1 of the datasheet. The OS pin of the sensor is useful to let the device monitor temperature in the background, and send a signal when the temperature exceeds a threshold, Tos. A hysteresis temperature, Thyst, is also defined to avoid noisy signal in the interrupt pin. Fig 6 of the datasheet shows how the OS pin would be controlled for a certain temperature input. There are two different modes of operation for the interrupt in the device, the interrupt mode and the comparator mode. They are selected using the second bit (B1) of the Config register.</p>
 <p>To use this feature of the sensor, we need to write to the two registers holding the values of Tos and Thyst. This follows the same principles as writing to the configuration register, but we need to convert the temperature values from floating point numbers to the 8 or 11 bit values expected in the device registers before transfer.</p>
-<p>The code below provides a working example. Figure out how to connect the LED and interrupt GPIO to make it work.</p>
+<p>The code below provides a working example. Figure out how to connect the LED and interrupt GPIO to make it work. Feel free to edit the code to adjust the pins as needed.</p>
 </section>
 <section id="code-sample-1" class="level3">
 <h3 class="anchored" data-anchor-id="code-sample-1">Code sample</h3>
@@ -959,284 +967,284 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">MicroPython</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"pico/stdlib.h"</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"hardware/i2c.h"</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"hardware/gpio.h"</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Hardware Configuration</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#define I2C_PORT i2c0</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#define SDA_PIN </span><span class="dv">4</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#define SCL_PIN </span><span class="dv">5</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="pp">#define OS_INT_PIN </span><span class="dv">16</span><span class="pp">    </span><span class="co">// LM75B OS Alert Pin input</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="pp">#define LED_PIN    </span><span class="dv">15</span><span class="pp">    </span><span class="co">// External LED Pin output</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">// Temperature Threshold Configurations (Degrees Celsius)</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="pp">#define TOS_TEMP   </span><span class="fl">26.0</span><span class="bu">f</span><span class="pp"> </span><span class="co">// Overtemperature alert threshold (Turns OS output ON)</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="pp">#define THYST_TEMP </span><span class="fl">25.0</span><span class="bu">f</span><span class="pp"> </span><span class="co">// Hysteresis threshold (Turns OS output OFF)</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">// LM75B Address &amp; Registers</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="pp">#define LM75B_ADDR </span><span class="bn">0x48</span><span class="pp">  </span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="pp">#define REG_TEMP   </span><span class="bn">0x00</span><span class="pp">  </span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="pp">#define REG_CONF   </span><span class="bn">0x01</span><span class="pp">  </span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="pp">#define REG_THYST  </span><span class="bn">0x02</span><span class="pp">  </span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="pp">#define REG_TOS    </span><span class="bn">0x03</span><span class="pp">  </span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co">// GPIO Interrupt Service Routine</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> gpio_callback<span class="op">(</span>uint gpio<span class="op">,</span> <span class="dt">uint32_t</span> events<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>gpio <span class="op">==</span> OS_INT_PIN<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>events <span class="op">&amp;</span> GPIO_IRQ_EDGE_FALL<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>            <span class="co">// GPIO transitioned from high to low</span></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>            gpio_put<span class="op">(</span>LED_PIN<span class="op">,</span> <span class="dv">1</span><span class="op">);</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>events <span class="op">&amp;</span> GPIO_IRQ_EDGE_RISE<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>            <span class="co">// GPIO transitioned from low to high</span></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>            gpio_put<span class="op">(</span>LED_PIN<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="co">// I2C Bus Scanner</span></span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> i2c_scan<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"</span><span class="sc">\n</span><span class="st">--- Scanning I2C Bus ---</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> addr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> addr <span class="op">&lt;</span> <span class="dv">128</span><span class="op">;</span> addr<span class="op">++)</span> <span class="op">{</span></span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">"</span><span class="sc">%02X</span><span class="st">: "</span><span class="op">,</span> addr<span class="op">);</span></span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Reserve I2C addresses (0x00-0x07 and 0x78-0x7F)</span></span>
-<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">((</span>addr <span class="op">&amp;</span> <span class="bn">0x78</span><span class="op">)</span> <span class="op">==</span> <span class="dv">0</span> <span class="op">||</span> <span class="op">(</span>addr <span class="op">&amp;</span> <span class="bn">0x78</span><span class="op">)</span> <span class="op">==</span> <span class="bn">0x78</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">"   "</span><span class="op">);</span></span>
-<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>            <span class="dt">uint8_t</span> rxdata<span class="op">;</span></span>
-<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int</span> result <span class="op">=</span> i2c_read_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> addr<span class="op">,</span> <span class="op">&amp;</span>rxdata<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
-<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>result <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">" @ "</span><span class="op">);</span> <span class="co">// Device ACK received</span></span>
-<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">" . "</span><span class="op">);</span> <span class="co">// No device ACK</span></span>
-<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
-<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">15</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
-<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"</span><span class="sc">\n</span><span class="st">--- Scan Complete ---</span><span class="sc">\n\n</span><span class="st">"</span><span class="op">);</span></span>
-<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a><span class="co">// Convert 16-bit register value to Celsius float</span></span>
-<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> read_temperature<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> reg <span class="op">=</span> REG_TEMP<span class="op">;</span></span>
-<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> buf<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">};</span></span>
-<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>    i2c_write_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> <span class="op">&amp;</span>reg<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="kw">true</span><span class="op">);</span></span>
-<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a>    i2c_read_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> buf<span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
-<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int16_t</span> raw_temp <span class="op">=</span> <span class="op">(</span><span class="dt">int16_t</span><span class="op">)((</span>buf<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">&lt;&lt;</span> <span class="dv">8</span><span class="op">)</span> <span class="op">|</span> buf<span class="op">[</span><span class="dv">1</span><span class="op">]);</span></span>
-<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw_temp <span class="op">/</span> <span class="fl">256.0</span><span class="bu">f</span><span class="op">;</span></span>
-<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a><span class="co">// Convert Celsius float to 16-bit register format</span></span>
-<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a><span class="dt">int16_t</span> celsius_to_raw<span class="op">(</span><span class="dt">float</span> temp_c<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span><span class="dt">int16_t</span><span class="op">)(</span>temp_c <span class="op">*</span> <span class="fl">256.0</span><span class="bu">f</span><span class="op">);</span></span>
-<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a><span class="co">// Set threshold registers (TOS / THYST)</span></span>
-<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> set_temp_threshold<span class="op">(</span><span class="dt">uint8_t</span> reg<span class="op">,</span> <span class="dt">float</span> temp_c<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int16_t</span> raw_val <span class="op">=</span> celsius_to_raw<span class="op">(</span>temp_c<span class="op">);</span></span>
-<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> buf<span class="op">[</span><span class="dv">3</span><span class="op">];</span></span>
-<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> reg<span class="op">;</span></span>
-<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="op">(</span>raw_val <span class="op">&gt;&gt;</span> <span class="dv">8</span><span class="op">)</span> <span class="op">&amp;</span> <span class="bn">0xFF</span><span class="op">;</span> <span class="co">// MSB</span></span>
-<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> raw_val <span class="op">&amp;</span> <span class="bn">0xFF</span><span class="op">;</span>        <span class="co">// LSB</span></span>
-<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>    i2c_write_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> buf<span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
-<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a><span class="co">// Configure LM75B in Comparator mode</span></span>
-<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> configure_lm75b<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> buf<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
-<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> REG_CONF<span class="op">;</span></span>
-<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="bn">0x00</span><span class="op">;</span> <span class="co">// Comparator mode, OS Active LOW</span></span>
-<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a>    i2c_write_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> buf<span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
-<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>    stdio_init_all<span class="op">();</span></span>
-<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>    sleep_ms<span class="op">(</span><span class="dv">10000</span><span class="op">);</span> <span class="co">// Give serial monitor time to connect</span></span>
-<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initialize I2C Peripheral</span></span>
-<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a>    i2c_init<span class="op">(</span>I2C_PORT<span class="op">,</span> <span class="dv">100</span> <span class="op">*</span> <span class="dv">1000</span><span class="op">);</span></span>
-<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a>    gpio_set_function<span class="op">(</span>SDA_PIN<span class="op">,</span> GPIO_FUNC_I2C<span class="op">);</span></span>
-<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a>    gpio_set_function<span class="op">(</span>SCL_PIN<span class="op">,</span> GPIO_FUNC_I2C<span class="op">);</span></span>
-<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a>    gpio_pull_up<span class="op">(</span>SDA_PIN<span class="op">);</span></span>
-<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a>    gpio_pull_up<span class="op">(</span>SCL_PIN<span class="op">);</span></span>
-<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Perform aligned I2C bus scan</span></span>
-<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>    i2c_scan<span class="op">();</span></span>
-<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Configure LM75B sensor &amp; Apply defined thresholds</span></span>
-<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a>    configure_lm75b<span class="op">();</span></span>
-<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a>    set_temp_threshold<span class="op">(</span>REG_TOS<span class="op">,</span> TOS_TEMP<span class="op">);</span>   </span>
-<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a>    set_temp_threshold<span class="op">(</span>REG_THYST<span class="op">,</span> THYST_TEMP<span class="op">);</span> </span>
-<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initialize LED pin (GP15)</span></span>
-<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a>    gpio_init<span class="op">(</span>LED_PIN<span class="op">);</span></span>
-<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a>    gpio_set_dir<span class="op">(</span>LED_PIN<span class="op">,</span> GPIO_OUT<span class="op">);</span></span>
-<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a>    gpio_put<span class="op">(</span>LED_PIN<span class="op">,</span> <span class="dv">1</span><span class="op">);</span></span>
-<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initialize OS Sensor Interrupt Pin (GP16)</span></span>
-<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a>    gpio_init<span class="op">(</span>OS_INT_PIN<span class="op">);</span></span>
-<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a>    gpio_set_dir<span class="op">(</span>OS_INT_PIN<span class="op">,</span> GPIO_IN<span class="op">);</span></span>
-<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a>    gpio_pull_up<span class="op">(</span>OS_INT_PIN<span class="op">);</span></span>
-<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a>    gpio_set_irq_enabled_with_callback<span class="op">(</span>OS_INT_PIN<span class="op">,</span> GPIO_IRQ_EDGE_RISE <span class="op">|</span> GPIO_IRQ_EDGE_FALL<span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="op">&amp;</span>gpio_callback<span class="op">);</span></span>
-<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"LM75B Running.</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
-<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"SDA pin: </span><span class="sc">%d</span><span class="st"> | SCL pin: </span><span class="sc">%d</span><span class="st"> | OS pin: </span><span class="sc">%d</span><span class="st"> </span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> </span>
-<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a>           SDA_PIN<span class="op">,</span> SCL_PIN<span class="op">,</span> OS_INT_PIN<span class="op">);</span></span>
-<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"TOS Limit: </span><span class="sc">%.1f</span><span class="st"> C | THYST Limit: </span><span class="sc">%.1f</span><span class="st"> C | Alarm LED Pin: GP</span><span class="sc">%d\n\n</span><span class="st">"</span><span class="op">,</span> </span>
-<span id="cb5-146"><a href="#cb5-146" aria-hidden="true" tabindex="-1"></a>           TOS_TEMP<span class="op">,</span> THYST_TEMP<span class="op">,</span> LED_PIN<span class="op">);</span></span>
-<span id="cb5-147"><a href="#cb5-147" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb5-148"><a href="#cb5-148" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"Measurements start in 1 sec.</span><span class="sc">\n\n</span><span class="st">"</span><span class="op">);</span> </span>
-<span id="cb5-149"><a href="#cb5-149" aria-hidden="true" tabindex="-1"></a>    sleep_ms<span class="op">(</span><span class="dv">1000</span><span class="op">);</span> <span class="co">// Give serial monitor time to connect</span></span>
-<span id="cb5-150"><a href="#cb5-150" aria-hidden="true" tabindex="-1"></a>    gpio_put<span class="op">(</span>LED_PIN<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
-<span id="cb5-151"><a href="#cb5-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-152"><a href="#cb5-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-153"><a href="#cb5-153" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Main Loop</span></span>
-<span id="cb5-154"><a href="#cb5-154" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="kw">true</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-155"><a href="#cb5-155" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> temp <span class="op">=</span> read_temperature<span class="op">();</span></span>
-<span id="cb5-156"><a href="#cb5-156" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">"Current Temperature: </span><span class="sc">%.2f</span><span class="st"> C</span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> temp<span class="op">);</span></span>
-<span id="cb5-157"><a href="#cb5-157" aria-hidden="true" tabindex="-1"></a>        sleep_ms<span class="op">(</span><span class="dv">1000</span><span class="op">);</span></span>
-<span id="cb5-158"><a href="#cb5-158" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-159"><a href="#cb5-159" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-160"><a href="#cb5-160" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb5-161"><a href="#cb5-161" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"pico/stdlib.h"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"hardware/i2c.h"</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"hardware/gpio.h"</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Hardware Configuration</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#define I2C_PORT i2c0</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#define SDA_PIN </span><span class="dv">4</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#define SCL_PIN </span><span class="dv">5</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="pp">#define OS_INT_PIN </span><span class="dv">16</span><span class="pp">    </span><span class="co">// LM75B OS Alert Pin input</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="pp">#define LED_PIN    </span><span class="dv">15</span><span class="pp">    </span><span class="co">// External LED Pin output</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">// Temperature Threshold Configurations (Degrees Celsius)</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="pp">#define TOS_TEMP   </span><span class="fl">26.0</span><span class="bu">f</span><span class="pp"> </span><span class="co">// Overtemperature alert threshold (Turns OS output ON)</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="pp">#define THYST_TEMP </span><span class="fl">25.0</span><span class="bu">f</span><span class="pp"> </span><span class="co">// Hysteresis threshold (Turns OS output OFF)</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">// LM75B Address &amp; Registers</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="pp">#define LM75B_ADDR </span><span class="bn">0x48</span><span class="pp">  </span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="pp">#define REG_TEMP   </span><span class="bn">0x00</span><span class="pp">  </span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="pp">#define REG_CONF   </span><span class="bn">0x01</span><span class="pp">  </span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="pp">#define REG_THYST  </span><span class="bn">0x02</span><span class="pp">  </span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="pp">#define REG_TOS    </span><span class="bn">0x03</span><span class="pp">  </span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="co">// GPIO Interrupt Service Routine</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> gpio_callback<span class="op">(</span>uint gpio<span class="op">,</span> <span class="dt">uint32_t</span> events<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>gpio <span class="op">==</span> OS_INT_PIN<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>events <span class="op">&amp;</span> GPIO_IRQ_EDGE_FALL<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>            <span class="co">// GPIO transitioned from high to low</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>            gpio_put<span class="op">(</span>LED_PIN<span class="op">,</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>events <span class="op">&amp;</span> GPIO_IRQ_EDGE_RISE<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>            <span class="co">// GPIO transitioned from low to high</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>            gpio_put<span class="op">(</span>LED_PIN<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="co">// I2C Bus Scanner</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> i2c_scan<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"</span><span class="sc">\n</span><span class="st">--- Scanning I2C Bus ---</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> addr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> addr <span class="op">&lt;</span> <span class="dv">128</span><span class="op">;</span> addr<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">"</span><span class="sc">%02X</span><span class="st">: "</span><span class="op">,</span> addr<span class="op">);</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Reserve I2C addresses (0x00-0x07 and 0x78-0x7F)</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">((</span>addr <span class="op">&amp;</span> <span class="bn">0x78</span><span class="op">)</span> <span class="op">==</span> <span class="dv">0</span> <span class="op">||</span> <span class="op">(</span>addr <span class="op">&amp;</span> <span class="bn">0x78</span><span class="op">)</span> <span class="op">==</span> <span class="bn">0x78</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">"   "</span><span class="op">);</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>            <span class="dt">uint8_t</span> rxdata<span class="op">;</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int</span> result <span class="op">=</span> i2c_read_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> addr<span class="op">,</span> <span class="op">&amp;</span>rxdata<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>result <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">" @ "</span><span class="op">);</span> <span class="co">// Device ACK received</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">" . "</span><span class="op">);</span> <span class="co">// No device ACK</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">15</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"</span><span class="sc">\n</span><span class="st">--- Scan Complete ---</span><span class="sc">\n\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a><span class="co">// Convert 16-bit register value to Celsius float</span></span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> read_temperature<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> reg <span class="op">=</span> REG_TEMP<span class="op">;</span></span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> buf<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">};</span></span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>    i2c_write_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> <span class="op">&amp;</span>reg<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="kw">true</span><span class="op">);</span></span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>    i2c_read_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> buf<span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int16_t</span> raw_temp <span class="op">=</span> <span class="op">(</span><span class="dt">int16_t</span><span class="op">)((</span>buf<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">&lt;&lt;</span> <span class="dv">8</span><span class="op">)</span> <span class="op">|</span> buf<span class="op">[</span><span class="dv">1</span><span class="op">]);</span></span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw_temp <span class="op">/</span> <span class="fl">256.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a><span class="co">// Convert Celsius float to 16-bit register format</span></span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a><span class="dt">int16_t</span> celsius_to_raw<span class="op">(</span><span class="dt">float</span> temp_c<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span><span class="dt">int16_t</span><span class="op">)(</span>temp_c <span class="op">*</span> <span class="fl">256.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a><span class="co">// Set threshold registers (TOS / THYST)</span></span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> set_temp_threshold<span class="op">(</span><span class="dt">uint8_t</span> reg<span class="op">,</span> <span class="dt">float</span> temp_c<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int16_t</span> raw_val <span class="op">=</span> celsius_to_raw<span class="op">(</span>temp_c<span class="op">);</span></span>
+<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> buf<span class="op">[</span><span class="dv">3</span><span class="op">];</span></span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> reg<span class="op">;</span></span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="op">(</span>raw_val <span class="op">&gt;&gt;</span> <span class="dv">8</span><span class="op">)</span> <span class="op">&amp;</span> <span class="bn">0xFF</span><span class="op">;</span> <span class="co">// MSB</span></span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> raw_val <span class="op">&amp;</span> <span class="bn">0xFF</span><span class="op">;</span>        <span class="co">// LSB</span></span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a>    i2c_write_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> buf<span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
+<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a><span class="co">// Configure LM75B in Comparator mode</span></span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> configure_lm75b<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> buf<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> REG_CONF<span class="op">;</span></span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="bn">0x00</span><span class="op">;</span> <span class="co">// Comparator mode, OS Active LOW</span></span>
+<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a>    i2c_write_blocking<span class="op">(</span>I2C_PORT<span class="op">,</span> LM75B_ADDR<span class="op">,</span> buf<span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
+<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a>    stdio_init_all<span class="op">();</span></span>
+<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a>    sleep_ms<span class="op">(</span><span class="dv">10000</span><span class="op">);</span> <span class="co">// Give serial monitor time to connect</span></span>
+<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initialize I2C Peripheral</span></span>
+<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a>    i2c_init<span class="op">(</span>I2C_PORT<span class="op">,</span> <span class="dv">100</span> <span class="op">*</span> <span class="dv">1000</span><span class="op">);</span></span>
+<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a>    gpio_set_function<span class="op">(</span>SDA_PIN<span class="op">,</span> GPIO_FUNC_I2C<span class="op">);</span></span>
+<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a>    gpio_set_function<span class="op">(</span>SCL_PIN<span class="op">,</span> GPIO_FUNC_I2C<span class="op">);</span></span>
+<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a>    gpio_pull_up<span class="op">(</span>SDA_PIN<span class="op">);</span></span>
+<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a>    gpio_pull_up<span class="op">(</span>SCL_PIN<span class="op">);</span></span>
+<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Perform aligned I2C bus scan</span></span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a>    i2c_scan<span class="op">();</span></span>
+<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Configure LM75B sensor &amp; Apply defined thresholds</span></span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a>    configure_lm75b<span class="op">();</span></span>
+<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a>    set_temp_threshold<span class="op">(</span>REG_TOS<span class="op">,</span> TOS_TEMP<span class="op">);</span>   </span>
+<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a>    set_temp_threshold<span class="op">(</span>REG_THYST<span class="op">,</span> THYST_TEMP<span class="op">);</span> </span>
+<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-130"><a href="#cb7-130" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initialize LED pin (GP15)</span></span>
+<span id="cb7-131"><a href="#cb7-131" aria-hidden="true" tabindex="-1"></a>    gpio_init<span class="op">(</span>LED_PIN<span class="op">);</span></span>
+<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a>    gpio_set_dir<span class="op">(</span>LED_PIN<span class="op">,</span> GPIO_OUT<span class="op">);</span></span>
+<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a>    gpio_put<span class="op">(</span>LED_PIN<span class="op">,</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initialize OS Sensor Interrupt Pin (GP16)</span></span>
+<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a>    gpio_init<span class="op">(</span>OS_INT_PIN<span class="op">);</span></span>
+<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a>    gpio_set_dir<span class="op">(</span>OS_INT_PIN<span class="op">,</span> GPIO_IN<span class="op">);</span></span>
+<span id="cb7-138"><a href="#cb7-138" aria-hidden="true" tabindex="-1"></a>    gpio_pull_up<span class="op">(</span>OS_INT_PIN<span class="op">);</span></span>
+<span id="cb7-139"><a href="#cb7-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-140"><a href="#cb7-140" aria-hidden="true" tabindex="-1"></a>    gpio_set_irq_enabled_with_callback<span class="op">(</span>OS_INT_PIN<span class="op">,</span> GPIO_IRQ_EDGE_RISE <span class="op">|</span> GPIO_IRQ_EDGE_FALL<span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="op">&amp;</span>gpio_callback<span class="op">);</span></span>
+<span id="cb7-141"><a href="#cb7-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-142"><a href="#cb7-142" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"LM75B Running.</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"SDA pin: </span><span class="sc">%d</span><span class="st"> | SCL pin: </span><span class="sc">%d</span><span class="st"> | OS pin: </span><span class="sc">%d</span><span class="st"> </span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> </span>
+<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a>           SDA_PIN<span class="op">,</span> SCL_PIN<span class="op">,</span> OS_INT_PIN<span class="op">);</span></span>
+<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"TOS Limit: </span><span class="sc">%.1f</span><span class="st"> C | THYST Limit: </span><span class="sc">%.1f</span><span class="st"> C | Alarm LED Pin: GP</span><span class="sc">%d\n\n</span><span class="st">"</span><span class="op">,</span> </span>
+<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a>           TOS_TEMP<span class="op">,</span> THYST_TEMP<span class="op">,</span> LED_PIN<span class="op">);</span></span>
+<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"Measurements start in 1 sec.</span><span class="sc">\n\n</span><span class="st">"</span><span class="op">);</span> </span>
+<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>    sleep_ms<span class="op">(</span><span class="dv">1000</span><span class="op">);</span> <span class="co">// Give serial monitor time to connect</span></span>
+<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>    gpio_put<span class="op">(</span>LED_PIN<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb7-151"><a href="#cb7-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-153"><a href="#cb7-153" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Main Loop</span></span>
+<span id="cb7-154"><a href="#cb7-154" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="kw">true</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-155"><a href="#cb7-155" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> temp <span class="op">=</span> read_temperature<span class="op">();</span></span>
+<span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">"Current Temperature: </span><span class="sc">%.2f</span><span class="st"> C</span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> temp<span class="op">);</span></span>
+<span id="cb7-157"><a href="#cb7-157" aria-hidden="true" tabindex="-1"></a>        sleep_ms<span class="op">(</span><span class="dv">1000</span><span class="op">);</span></span>
+<span id="cb7-158"><a href="#cb7-158" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-159"><a href="#cb7-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-160"><a href="#cb7-160" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-161"><a href="#cb7-161" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> machine <span class="im">import</span> Pin, I2C</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Hardware Configuration</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>I2C_PORT <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>SDA_PIN <span class="op">=</span> <span class="dv">4</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>SCL_PIN <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>OS_INT_PIN <span class="op">=</span> <span class="dv">16</span>    <span class="co"># LM75B OS Alert Pin input</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>LED_PIN <span class="op">=</span> <span class="dv">15</span>       <span class="co"># External LED Pin output</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Temperature Threshold Configurations (Degrees Celsius)</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>TOS_TEMP <span class="op">=</span> <span class="fl">26.0</span>    <span class="co"># Overtemperature alert threshold (Turns OS output ON)</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>THYST_TEMP <span class="op">=</span> <span class="fl">25.0</span>  <span class="co"># Hysteresis threshold (Turns OS output OFF)</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># LM75B Address &amp; Registers</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>LM75B_ADDR <span class="op">=</span> <span class="bn">0x48</span>  </span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>REG_TEMP <span class="op">=</span> <span class="bn">0x00</span>  </span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>REG_CONF <span class="op">=</span> <span class="bn">0x01</span>  </span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>REG_THYST <span class="op">=</span> <span class="bn">0x02</span>  </span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>REG_TOS <span class="op">=</span> <span class="bn">0x03</span>  </span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Global Pin Handle for the LED (so the interrupt callback can control it)</span></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>led <span class="op">=</span> Pin(LED_PIN, Pin.OUT)</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="co"># GPIO Interrupt Service Routine</span></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gpio_callback(pin):</span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Active-LOW logic: OS pin falling (LOW) means over-temp alert</span></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pin.value() <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>        led.value(<span class="dv">1</span>)  <span class="co"># Turn LED ON</span></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>        led.value(<span class="dv">0</span>)  <span class="co"># Turn LED OFF</span></span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a><span class="co"># I2C Bus Scanner</span></span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> i2c_scan(i2c):</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Scanning I2C Bus ---"</span>)</span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F"</span>)</span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    devices <span class="op">=</span> <span class="bu">set</span>(i2c.scan())</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> addr <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">128</span>):</span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>addr<span class="sc">:02X}</span><span class="ss">: "</span>, end<span class="op">=</span><span class="st">""</span>)</span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Reserve I2C addresses (0x00-0x07 and 0x78-0x7F)</span></span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (addr <span class="op">&amp;</span> <span class="bn">0x78</span>) <span class="op">==</span> <span class="dv">0</span> <span class="kw">or</span> (addr <span class="op">&amp;</span> <span class="bn">0x78</span>) <span class="op">==</span> <span class="bn">0x78</span>:</span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"   "</span>, end<span class="op">=</span><span class="st">""</span>)</span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
-<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> addr <span class="kw">in</span> devices:</span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">" @ "</span>, end<span class="op">=</span><span class="st">""</span>)  <span class="co"># Device ACK received</span></span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">" . "</span>, end<span class="op">=</span><span class="st">""</span>)  <span class="co"># No device ACK</span></span>
-<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">15</span>:</span>
-<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>()</span>
-<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Scan Complete ---</span><span class="ch">\n</span><span class="st">"</span>)</span>
-<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert 16-bit register value to Celsius float</span></span>
-<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_temperature(i2c):</span>
-<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>    <span class="co"># stop=False generates a Repeated START condition</span></span>
-<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>    i2c.writeto(LM75B_ADDR, <span class="bu">bytes</span>([REG_TEMP]), <span class="va">False</span>)</span>
-<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> i2c.readfrom(LM75B_ADDR, <span class="dv">2</span>)</span>
-<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Unpack 16-bit signed integer (Big-Endian)</span></span>
-<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>    raw_temp <span class="op">=</span> <span class="bu">int</span>.from_bytes(buf, <span class="st">'big'</span>, <span class="va">True</span>)</span>
-<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw_temp <span class="op">/</span> <span class="fl">256.0</span></span>
-<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert Celsius float to 16-bit register format</span></span>
-<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> celsius_to_raw(temp_c):</span>
-<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>    raw <span class="op">=</span> <span class="bu">int</span>(temp_c <span class="op">*</span> <span class="fl">256.0</span>)</span>
-<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw.to_bytes(<span class="dv">2</span>, <span class="st">'big'</span>)</span>
-<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a><span class="co"># Set threshold registers (TOS / THYST)</span></span>
-<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> set_temp_threshold(i2c, reg, temp_c):</span>
-<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> <span class="bu">bytes</span>([reg]) <span class="op">+</span> celsius_to_raw(temp_c)</span>
-<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>    i2c.writeto(LM75B_ADDR, data)</span>
-<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure LM75B in Comparator mode</span></span>
-<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> configure_lm75b(i2c):</span>
-<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 0x00 = Comparator mode, OS Active LOW</span></span>
-<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>    i2c.writeto(LM75B_ADDR, <span class="bu">bytes</span>([REG_CONF, <span class="bn">0x00</span>]))</span>
-<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize I2C Peripheral (100 kHz)</span></span>
-<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>i2c <span class="op">=</span> I2C(I2C_PORT, sda<span class="op">=</span>Pin(SDA_PIN), scl<span class="op">=</span>Pin(SCL_PIN), freq<span class="op">=</span><span class="dv">100000</span>)</span>
-<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform aligned I2C bus scan</span></span>
-<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>i2c_scan(i2c)</span>
-<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure LM75B sensor &amp; Apply defined thresholds</span></span>
-<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>configure_lm75b(i2c)</span>
-<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>set_temp_threshold(i2c, REG_TOS, TOS_TEMP)</span>
-<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>set_temp_threshold(i2c, REG_THYST, THYST_TEMP)</span>
-<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize LED pin (GP15)</span></span>
-<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>led.value(<span class="dv">1</span>)</span>
-<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize OS Sensor Interrupt Pin (GP16)</span></span>
-<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>os_pin <span class="op">=</span> Pin(OS_INT_PIN, Pin.IN, Pin.PULL_UP)</span>
-<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>os_pin.irq(trigger<span class="op">=</span>Pin.IRQ_FALLING <span class="op">|</span> Pin.IRQ_RISING, handler<span class="op">=</span>gpio_callback)</span>
-<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"LM75B Running."</span>)</span>
-<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"SDA pin: </span><span class="sc">{</span>SDA_PIN<span class="sc">}</span><span class="ss"> | SCL pin: </span><span class="sc">{</span>SCL_PIN<span class="sc">}</span><span class="ss"> | OS pin: </span><span class="sc">{</span>OS_INT_PIN<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"TOS Limit: </span><span class="sc">{</span>TOS_TEMP<span class="sc">:.1f}</span><span class="ss"> C | THYST Limit: </span><span class="sc">{</span>THYST_TEMP<span class="sc">:.1f}</span><span class="ss"> C | Alarm LED Pin: GP</span><span class="sc">{</span>LED_PIN<span class="sc">}</span><span class="ch">\n</span><span class="ss">"</span>)</span>
-<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Measurements start in 1 sec.</span><span class="ch">\n</span><span class="st">"</span>)</span>
-<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">1</span>)</span>
-<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a>led.value(<span class="dv">0</span>)</span>
-<span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a><span class="co"># Main Loop</span></span>
-<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>    temp <span class="op">=</span> read_temperature(i2c)</span>
-<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Current Temperature: </span><span class="sc">{</span>temp<span class="sc">:.2f}</span><span class="ss"> C"</span>)</span>
-<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> machine <span class="im">import</span> Pin, I2C</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Hardware Configuration</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>I2C_PORT <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>SDA_PIN <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>SCL_PIN <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>OS_INT_PIN <span class="op">=</span> <span class="dv">16</span>    <span class="co"># LM75B OS Alert Pin input</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>LED_PIN <span class="op">=</span> <span class="dv">15</span>       <span class="co"># External LED Pin output</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Temperature Threshold Configurations (Degrees Celsius)</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>TOS_TEMP <span class="op">=</span> <span class="fl">26.0</span>    <span class="co"># Overtemperature alert threshold (Turns OS output ON)</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>THYST_TEMP <span class="op">=</span> <span class="fl">25.0</span>  <span class="co"># Hysteresis threshold (Turns OS output OFF)</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co"># LM75B Address &amp; Registers</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>LM75B_ADDR <span class="op">=</span> <span class="bn">0x48</span>  </span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>REG_TEMP <span class="op">=</span> <span class="bn">0x00</span>  </span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>REG_CONF <span class="op">=</span> <span class="bn">0x01</span>  </span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>REG_THYST <span class="op">=</span> <span class="bn">0x02</span>  </span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>REG_TOS <span class="op">=</span> <span class="bn">0x03</span>  </span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Global Pin Handle for the LED (so the interrupt callback can control it)</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>led <span class="op">=</span> Pin(LED_PIN, Pin.OUT)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="co"># GPIO Interrupt Service Routine</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gpio_callback(pin):</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Active-LOW logic: OS pin falling (LOW) means over-temp alert</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pin.value() <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        led.value(<span class="dv">1</span>)  <span class="co"># Turn LED ON</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>        led.value(<span class="dv">0</span>)  <span class="co"># Turn LED OFF</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="co"># I2C Bus Scanner</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> i2c_scan(i2c):</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Scanning I2C Bus ---"</span>)</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F"</span>)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    devices <span class="op">=</span> <span class="bu">set</span>(i2c.scan())</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> addr <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">128</span>):</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>addr<span class="sc">:02X}</span><span class="ss">: "</span>, end<span class="op">=</span><span class="st">""</span>)</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Reserve I2C addresses (0x00-0x07 and 0x78-0x7F)</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (addr <span class="op">&amp;</span> <span class="bn">0x78</span>) <span class="op">==</span> <span class="dv">0</span> <span class="kw">or</span> (addr <span class="op">&amp;</span> <span class="bn">0x78</span>) <span class="op">==</span> <span class="bn">0x78</span>:</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"   "</span>, end<span class="op">=</span><span class="st">""</span>)</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> addr <span class="kw">in</span> devices:</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">" @ "</span>, end<span class="op">=</span><span class="st">""</span>)  <span class="co"># Device ACK received</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">" . "</span>, end<span class="op">=</span><span class="st">""</span>)  <span class="co"># No device ACK</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> addr <span class="op">%</span> <span class="dv">16</span> <span class="op">==</span> <span class="dv">15</span>:</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>()</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Scan Complete ---</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert 16-bit register value to Celsius float</span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_temperature(i2c):</span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>    <span class="co"># stop=False generates a Repeated START condition</span></span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>    i2c.writeto(LM75B_ADDR, <span class="bu">bytes</span>([REG_TEMP]), <span class="va">False</span>)</span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> i2c.readfrom(LM75B_ADDR, <span class="dv">2</span>)</span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Unpack 16-bit signed integer (Big-Endian)</span></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>    raw_temp <span class="op">=</span> <span class="bu">int</span>.from_bytes(buf, <span class="st">'big'</span>, <span class="va">True</span>)</span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw_temp <span class="op">/</span> <span class="fl">256.0</span></span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert Celsius float to 16-bit register format</span></span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> celsius_to_raw(temp_c):</span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>    raw <span class="op">=</span> <span class="bu">int</span>(temp_c <span class="op">*</span> <span class="fl">256.0</span>)</span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> raw.to_bytes(<span class="dv">2</span>, <span class="st">'big'</span>)</span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a><span class="co"># Set threshold registers (TOS / THYST)</span></span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> set_temp_threshold(i2c, reg, temp_c):</span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> <span class="bu">bytes</span>([reg]) <span class="op">+</span> celsius_to_raw(temp_c)</span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>    i2c.writeto(LM75B_ADDR, data)</span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure LM75B in Comparator mode</span></span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> configure_lm75b(i2c):</span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 0x00 = Comparator mode, OS Active LOW</span></span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a>    i2c.writeto(LM75B_ADDR, <span class="bu">bytes</span>([REG_CONF, <span class="bn">0x00</span>]))</span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize I2C Peripheral (100 kHz)</span></span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a>i2c <span class="op">=</span> I2C(I2C_PORT, sda<span class="op">=</span>Pin(SDA_PIN), scl<span class="op">=</span>Pin(SCL_PIN), freq<span class="op">=</span><span class="dv">100000</span>)</span>
+<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform aligned I2C bus scan</span></span>
+<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a>i2c_scan(i2c)</span>
+<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-91"><a href="#cb8-91" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure LM75B sensor &amp; Apply defined thresholds</span></span>
+<span id="cb8-92"><a href="#cb8-92" aria-hidden="true" tabindex="-1"></a>configure_lm75b(i2c)</span>
+<span id="cb8-93"><a href="#cb8-93" aria-hidden="true" tabindex="-1"></a>set_temp_threshold(i2c, REG_TOS, TOS_TEMP)</span>
+<span id="cb8-94"><a href="#cb8-94" aria-hidden="true" tabindex="-1"></a>set_temp_threshold(i2c, REG_THYST, THYST_TEMP)</span>
+<span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize LED pin (GP15)</span></span>
+<span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a>led.value(<span class="dv">1</span>)</span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize OS Sensor Interrupt Pin (GP16)</span></span>
+<span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a>os_pin <span class="op">=</span> Pin(OS_INT_PIN, Pin.IN, Pin.PULL_UP)</span>
+<span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a>os_pin.irq(trigger<span class="op">=</span>Pin.IRQ_FALLING <span class="op">|</span> Pin.IRQ_RISING, handler<span class="op">=</span>gpio_callback)</span>
+<span id="cb8-102"><a href="#cb8-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"LM75B Running."</span>)</span>
+<span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"SDA pin: </span><span class="sc">{</span>SDA_PIN<span class="sc">}</span><span class="ss"> | SCL pin: </span><span class="sc">{</span>SCL_PIN<span class="sc">}</span><span class="ss"> | OS pin: </span><span class="sc">{</span>OS_INT_PIN<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-105"><a href="#cb8-105" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"TOS Limit: </span><span class="sc">{</span>TOS_TEMP<span class="sc">:.1f}</span><span class="ss"> C | THYST Limit: </span><span class="sc">{</span>THYST_TEMP<span class="sc">:.1f}</span><span class="ss"> C | Alarm LED Pin: GP</span><span class="sc">{</span>LED_PIN<span class="sc">}</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Measurements start in 1 sec.</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">1</span>)</span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a>led.value(<span class="dv">0</span>)</span>
+<span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-111"><a href="#cb8-111" aria-hidden="true" tabindex="-1"></a><span class="co"># Main Loop</span></span>
+<span id="cb8-112"><a href="#cb8-112" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb8-113"><a href="#cb8-113" aria-hidden="true" tabindex="-1"></a>    temp <span class="op">=</span> read_temperature(i2c)</span>
+<span id="cb8-114"><a href="#cb8-114" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Current Temperature: </span><span class="sc">{</span>temp<span class="sc">:.2f}</span><span class="ss"> C"</span>)</span>
+<span id="cb8-115"><a href="#cb8-115" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>

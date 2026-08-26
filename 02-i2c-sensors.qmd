@@ -4,25 +4,25 @@
 
 In this module, we will connect and use an I2C component, a temperature sensor.
 
-* First, we will test connect the hardware and test the connection by scanning the bus - seeing which addresses on the bus lead to devices ackowledging the call.
+* First, we will test and connect the hardware and test the connection by scanning the bus - seeing which addresses on the bus lead to devices ackowledging the call.
 
 * Then we will dissect the data sheet of the sensor and figure out how it works.
 
-* We will perform temperature measurements with device.
+* We will perform temperature measurements with the device.
 
-* Finally we will use sensor's ability to respond to temperature thresholds by triggering an interrupt.
+* Finally we will use the sensor's ability to respond to temperature thresholds by triggering an interrupt.
 
 
 ## Testing devices on the bus - the bus-scan
 
 There are several I2C hardware peripherals on the Pico microprocessor, and a range of pins can be selected for the connection. Check the pin-out to identify options.
 
-The code examples below assume that you are connected to the peripheral I2C 0, using the pin 4 for SDA and 5 for SCL.
+The code examples below assume that you are connected to the peripheral I2C 0, using the pin 4 for SDA and 5 for SCL. Check the pinout of your board to identify these connections.
 
-Use jumper wires to connect your sensor to the Pico. The ground and Vcc need to be connected too.
+Use jumper wires to connect your sensor to the Pico. The ground and Vcc (3.3V) need to be connected too. Ignore the OS pin for now.
 
-When this is done, run the code below to see if your device is detected. It essentially sends a request on all available addresses and detect which device has acknowledge the request.
-The output is presented as a table, 16 columns and 8 rows, covering the 128 value range. Note that the first and last 8 values are reserved in the protocol, and it is best not to probe them.
+When this is done, run the code below to see if your device is detected. It essentially sends a request on all available addresses and detect which devices have acknowledged the request.
+The output is presented as a table, 16 columns and 8 rows, covering the 128 value range. Note that the first and last 8 values are reserved in the protocol, and it is best not to probe them at all.
 
 ::: {.panel-tabset group="language"}
 ## C
@@ -141,40 +141,45 @@ while True:
 ```
 :::
 
+If all goes well, you should see that one device is connected, with an `@` at the sensor's address.
+
+
+
+
 
 ## The sensor's datasheet
 
 
-For any device you wish to connect using I\ :sup:`2`\ C, you will need to:
+For any device you wish to connect using I2C, you will need to:
 
-- identify or set the device address;
+- identify (or set) the device address;
 
 - configure the device if needed, by setting the value of different registers controlling the operation of the device;
 
 - read and send data to the device.
 
 All this information can be found in the data sheet of the device you are planning to use.
-Make sure you check the availability of a good documentation before selecting a device.
+Make sure you check the availability of good documentation before selecting a device.
 
-We will work with a sensor produced by NXP, with a rather good documentation to support the work of the developer.
+We will work with a sensor produced by NXP, with a clear documentation to support the work of the developer.
 The data sheet of the LM75 sensor you will use is available [here](resources/temp_sensor_lm75b.pdf).
 
-This is daunting document! It probably contains many technical words you are not familiar with (yet).
+This is a daunting document! It probably contains many technical words you are not familiar with (yet).
 However, you don't need to understand it all to get to use the device in your application.
 Have a quick scan through it at first.
-If you know what you are looking for, you will get this information out of it quickly enough afterwards.
+Once you know what you are looking for, you will get this information out of it quickly enough afterwards.
 
-Consult the data-sheet of the sensor to identify its I2C address. You'll see that there is actually a range of address. How to set it? Your sensor is already soldered to a breakout board. Look at the back of the breakout board, and try to understand how to set the address of the device.
+Consult the data-sheet of the sensor to identify its I2C address. You'll see that there is actually a range of addresses. How to set it? Your sensor is already soldered to a breakout board. Look at the back of the breakout board, and try to understand how to set the address of the device.
 
-Most of the time, there will also be sample codes available to you online, or good AI models to get you started.
-But being able to understand the content of the datasheet ensures that you are able to appreciate the full feature set of your device and understand its limitations.
+Most of the time, there will also be sample code available to you online, or good AI models to get you started, and even finished for simple enough tasks.
+But being able to understand the content of the datasheet ensures that you are able to appreciate the full feature set of your device, understand its limitations, and critically assess the suitability of the code you or a model generated.
 
 
 ### Device registers
 
 Section 7.4 of the datasheet lists the four data registers present in the sensor (see table 5 in datasheet). A register is a small section of memory to store a few bytes of data that the device needs.
 
-* The configuration register controls the different modes of operation of the device; you can read or write on it, although you would most likely simply write on it to set the desired behaviour of the sensor. Each bit of the register controls a certain behaviour of the sensor.
+* The configuration register controls the different modes of operation of the device; you can read or write to it, although you would most likely simply write on it to set the desired behaviour of the sensor. Each bit of the register controls a certain behaviour of the sensor.
 
 * The temp register contains the last temperature reading; it is read only, as expected.
 
@@ -186,11 +191,14 @@ All interactions with the device involve writing and reading the content of thes
 
 ### Reading and writing on the registers
 
-Each register has an address. There is a special register in the device called pointer register that sets which data register will be involved in the following reading or writing operation. We do not need to worry too much about the details, as communications will be handled by special functions in the mbed I2C library. But it is important to understand the sequence of typical I2C communications to be able to use properly these high level functions.
+Each register has an address. There is a special register in the device called pointer register that sets which data register will be involved in the following reading or writing operation.
 
-A typical sequence to write in the data registers consists in sending through I2C the device address (7 bits and R/W bit set to W), followed by the value of the pointer register, to indicate which data register we want to write on, and the data to store on this register (see figs 7 and 11 in the datasheet).
+A typical sequence to write in the data registers of this device consists in sending through I2C the device address (7 bits and R/W bit set to W), followed by the value of the pointer register, to indicate which data register we want to write on, followed by the data to store on this register (see figs 7 and 11 in the datasheet).
 
-To read, a similar process is followed, but two steps are needed (See figs 8 and 11 in the datasheet). First, we send to the I2C bus the device address (7 bits and R/W bit set to W), followed by the value of the pointer register to indicate what we would want to read. The microcontroller would then send another start signal. The next part involves sending again to the I2C bus the device address, but this time with the R/W bit set to R. The master (microcontroller) would continue to control the clock, but this time the slave (sensor) would control the data line, and send, one byte at a time, the data requested.
+To read, a similar process is followed, but two steps are needed (See figs 8 and 11 in the datasheet).
+
+- First, we send to the I2C bus the device address (7 bits and R/W bit set to W), followed by the value of the pointer register to indicate what we would want to read.
+- The microcontroller would then initiate another transaction with a start signal, and send again to the I2C bus the device address, but this time with the R/W bit set to R. The controller device (your microcontroller) would continue to control the clock afterwards, but this time the target (sensor) would control the data line, and send, one byte at a time, the data requested.
 
 
 
@@ -203,18 +211,19 @@ To read, a similar process is followed, but two steps are needed (See figs 8 and
 
 ### Binary arithmetics for temperature data
 
-Transforming data buffers into floating point temperature, and vice-versa, is a tricky task.
-You may not need to create such code, and could reuse the relevant sections of the examples code provided, but it helps to understand how they work.
+Transforming data buffers into floating point temperature, and vice-versa, could be a tricky task.
+You may not need to create such code yourself, and could reuse the relevant sections of the examples code provided, but it helps to understand how they work.
 
 The way temperatures are stored on the registers is defined in section 7.4.3 and 7.4.4.
 Have a look at it first.
-This is the content of the buffer data_read at the start:
 
-| data_read[0] (8 bits) | data_read[1] (8 bits) |
+When temperature data is received from the sensor, it is collected in a buffer (array) of two bytes, as data is transferred one byte at a time. This is the content of the buffer `buf` at this point:
+
+| buf[0] (8 bits) | buf[1] (8 bits) |
 | :---: | :---: |
 | D10, D9, D8, D7, D6, D5, D4, D3 | D2, D1, D0, 0, 0, 0, 0, 0 |
 
-These 11 bits represents the whole temperature range, with a 0.125 degree Celsius precision, i.e. 1/8 of a degree.
+These 11 bits represent the whole temperature range, with a 0.125 degree Celsius precision, i.e. 1/8 of a degree.
 The binary value of each bit, including sign, is detailed in the table below:
 
 | D10 | D9 | D8 | D7 | D6 | D5 | D4 | D3 | D2 | D1 | D0 |
@@ -227,47 +236,54 @@ Table 10 of the datasheet shows examples of temperature values and their equival
 The gist of what follows consists in manipulating the bit array to extract the exact value of the temperature.
 You may want to learn a bit about [bitwise operations in C](https://en.wikipedia.org/wiki/Bitwise_operations_in_C) if you never encountered this before.
 
-The mbed example code for the LM75 sensor does something really complicated and long winded to build the temperature as a text.
-The appendix below explains what it does, but we are going to explain here a much simpler method.
-
-The representation we get from the sensor, stored in data_read, is not too far from the representation of a 16-bit signed integer: 
+The representation we get from the sensor, stored in `buf`, is not too far from the representation of a 16-bit signed integer: 
 
 | bit value for 16 bit int | Sign | 16384 | 8192 | 4096 | 2048 | 1024 | 512 | 256 | 128 | 64 | 32 | 16 | 8 | 4 | 2 | 1 |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | bit value for sensor data | Sign | 64 | 32 | 16 | 8 | 4 | 2 | 1 | 1/2 | 1/4 | 1/8 | 0 | 0 | 0 | 0 | 0 |
 
-If we were to paste the 16 bits of data_read in a 16-bit integer, we would get a number that is the temperature scaled by a factor 256, since the bit corresponding to 1 celsius in the sensor data corresponds to 256 in the 16-bit int.
-This may be a good strategy to follow.
+If we were to directly paste the 16 bits of `buf` in a 16-bit integer, we would get a number that is the temperature scaled by a factor 256, since the bit corresponding to 1 celsius in the sensor data corresponds to 256 in the 16-bit int.
+This is a good strategy to follow.
 
-To use precisely defined integer types, we will use the header file [stdint.h](https://en.wikibooks.org/wiki/C_Programming/stdint.h):
+The micropython code does this directly, using the command `int.from_bytes`:
+
+```python
+    raw_temp = int.from_bytes(buf, 'big', True)
+    return raw_temp / 256.0
+```
+
+In C, we need to be more explicit with how the bit are manipulated.
+
+First, we extend to 16 bit the first byte `buf[0]`.
 
 
-
-would create this :
-
-| | | | | | | | | data_read[0] | | | | | | | |
+| | | | | | | | | buf[0] | | | | | | | |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | D10 | D9 | D8 | D7 | D6 | D5 | D4 | D3 |
 
 To place the bits D10 - D3 at the right place, we need to shift them bitwise using the left-shift operator "<<":
 
-| data_read[0] | | | | | | | | | | | | | | | |
+| buf[0] | | | | | | | | | | | | | | | |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | D10 | D9 | D8 | D7 | D6 | D5 | D4 | D3 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 To complete the number, we need to add the bits D2-D0 contained in data_read[1].
 This is done using the bitwise OR operator, "|", between data_read[0] << 8 and data_read[1].
 
-| data_read[0] | | | | | | | | data_read[1] | | | | | | | |
+| buf[0] | | | | | | | | buf[1] | | | | | | | |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | D10 | D9 | D8 | D7 | D6 | D5 | D4 | D3 | D2 | D1 | D0 | 0 | 0 | 0 | 0 | 0 |
 
-To get the temperature in degree Celsius, we need to divide this number by 256, making sure the output is a floating point number.
-To indicate to the compiler that we want the floating point division, we write 256 with a decimal point, 256.0.
+Note that the sign bit is on the left, as expected, so it will be interpreted correctly. To get the temperature in degrees Celsius, we need to divide this number by 256, making sure the output is a floating point number.
+To indicate to the compiler that we want the floating point division, we write 256 as a float, with a decimal point, 256.0.
 The conversion code therefore becomes:
 
 Overall, the code with the new conversion function would be:
 
+```c
+    int16_t raw_temp = (int16_t)((buf[0] << 8) | buf[1]);
+    return raw_temp / 256.0f;
+```
 
 
 ### Code sample
@@ -364,8 +380,8 @@ int main() {
     configure_lm75b();
 
     printf("LM75B Running.\n");
-    printf("SDA pin: %d | SCL pin: %d | OS pin: %d \n", 
-           SDA_PIN, SCL_PIN, OS_INT_PIN);
+    printf("SDA pin: %d | SCL pin: %d : %d \n", 
+           SDA_PIN, SCL_PIN);
     
     printf("Measurements start in 1 sec.\n\n"); 
     sleep_ms(1000); // Give serial monitor time to connect
@@ -391,8 +407,6 @@ I2C_PORT = 0
 SDA_PIN = 4
 SCL_PIN = 5
 
-OS_INT_PIN = 16    # LM75B OS Alert Pin input
-LED_PIN = 15       # External LED Pin output
 
 # LM75B Address & Registers
 LM75B_ADDR = 0x48  
@@ -450,7 +464,7 @@ i2c_scan(i2c)
 configure_lm75b(i2c)
 
 print("LM75B Running.")
-print(f"SDA pin: {SDA_PIN} | SCL pin: {SCL_PIN} | OS pin: {OS_INT_PIN}")
+print(f"SDA pin: {SDA_PIN} | SCL pin: {SCL_PIN} ")
 
 print("Measurements start in 1 sec.\n")
 time.sleep(1)
@@ -482,7 +496,7 @@ Read section 7.1 of the datasheet. The OS pin of the sensor is useful to let the
 
 To use this feature of the sensor, we need to write to the two registers holding the values of Tos and Thyst. This follows the same principles as writing to the configuration register, but we need to convert the temperature values from floating point numbers to the 8 or 11 bit values expected in the device registers before transfer.
 
-The code below provides a working example. Figure out how to connect the LED and interrupt GPIO to make it work.
+The code below provides a working example. Figure out how to connect the LED and interrupt GPIO to make it work. Feel free to edit the code to adjust the pins as needed.
 
 
 ### Code sample

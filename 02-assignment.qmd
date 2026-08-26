@@ -5,7 +5,7 @@
 When an incident happens in an industrial setting, it is important to keep a log of data to analyse the cause of the incident.
 Here, we want to mimic such a scenario.
 
-* The temperature sensor shold read temperature each second.
+* The temperature sensor should read temperature each second.
 * The last 15 measurements need to be stored in memory.
 * When the temperature exceeds the threshold, the LED turns on and the log is printed on the terminal.
 * You may decide what happens after this event - this is not specified.
