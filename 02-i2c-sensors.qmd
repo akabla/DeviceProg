@@ -268,7 +268,7 @@ To place the bits D10 - D3 at the right place, we need to shift them bitwise usi
 | D10 | D9 | D8 | D7 | D6 | D5 | D4 | D3 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 To complete the number, we need to add the bits D2-D0 contained in data_read[1].
-This is done using the bitwise OR operator, "|", between data_read[0] << 8 and data_read[1].
+This is done using the bitwise `OR` operator, `|` in C, between `buf[0] << 8` and `buf[1]`.
 
 | buf[0] | | | | | | | | buf[1] | | | | | | | |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|

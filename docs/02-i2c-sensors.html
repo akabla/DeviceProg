@@ -695,7 +695,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>To complete the number, we need to add the bits D2-D0 contained in data_read[1]. This is done using the bitwise OR operator, “|”, between data_read[0] &lt;&lt; 8 and data_read[1].</p>
+<p>To complete the number, we need to add the bits D2-D0 contained in data_read[1]. This is done using the bitwise <code>OR</code> operator, <code>|</code> in C, between <code>buf[0] &lt;&lt; 8</code> and <code>buf[1]</code>.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 6%">
