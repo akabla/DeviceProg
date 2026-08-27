@@ -50,8 +50,8 @@ void pwm_init_pin(uint8_t pin) {
     pwm_set_wrap(slice_num, MAX_DUTY);
     
     // Set clock divider for 1000 Hz at the Pico 2W default 150 MHz system clock
-    // Formula: 150,000,000 Hz / (22.88 * 65536) ≈ 1000 Hz
-    pwm_set_clkdiv(slice_num, 22.88f);
+    // Formula: 150,000,000 Hz / (2.289 * 65536) ≈ 1000 Hz
+    pwm_set_clkdiv(slice_num, 2.289f);
 
     // Enable the PWM slice counter
     pwm_set_enabled(slice_num, true);
@@ -118,9 +118,9 @@ while True:
 
 ### Using a potentiometer to control the LED intensity
 
-A potentiometer is a three pin voltage divider that allows us to continuously vary voltage. Connect the left and right pins to ground and Vcc, and monitor the voltage in the middle one with an analog input on your board. The Pico offers three of them.
+A potentiometer is a three pin voltage divider that allows us to continuously vary voltage. Connect the left pin to ground, the right pin to Vcc, and monitor the voltage in the middle one by connecting it to an analog input on your board. The Pico offers three of them.
 
-Look for the `ADC0` to `ADC2` (ADC stands for Analog-Digital Converter) inputs on the board's pinout. We need to use one of them, and configure the GPIO pin to use the ADC. The code below shows how to do it. Feel free to adapt it to your requirements.
+Look for the `ADC0` to `ADC2` (ADC stands for Analog-Digital Converter) inputs on the board's pinout. We need to use one of them and can't use the pin with used for the push button. We also need to configure the new GPIO pin to use the ADC. The code below shows how to do it. Feel free to adapt it if you prefer to use other suitable pins.
 
 ::: {.panel-tabset group="language"}
 ## C
@@ -143,7 +143,8 @@ void pwm_init_pin(uint8_t pin) {
     uint slice_num = pwm_gpio_to_slice_num(pin);
 
     pwm_set_wrap(slice_num, MAX_DUTY);
-    pwm_set_clkdiv(slice_num, 22.88f); // 1000 Hz at 150 MHz default clock
+    // Formula: 150,000,000 Hz / (2.289 * 65536) ≈ 1000 Hz
+    pwm_set_clkdiv(slice_num, 2.289f);
     pwm_set_enabled(slice_num, true);
 }
 
@@ -296,7 +297,8 @@ void pwm_init_pin(uint8_t pin) {
     uint slice_num = pwm_gpio_to_slice_num(pin);
 
     pwm_set_wrap(slice_num, MAX_DUTY);
-    pwm_set_clkdiv(slice_num, 22.88f); // ~1000 Hz at 150 MHz default clock (Pico 2W)
+    // Formula: 150,000,000 Hz / (2.289 * 65536) ≈ 1000 Hz
+    pwm_set_clkdiv(slice_num, 2.289f);
     pwm_set_enabled(slice_num, true);
 }
 
