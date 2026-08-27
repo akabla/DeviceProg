@@ -242,14 +242,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#what-is-pulse-width-modulation" id="toc-what-is-pulse-width-modulation" class="nav-link" data-scroll-target="#what-is-pulse-width-modulation">What is Pulse-Width-Modulation ?</a></li>
   <li><a href="#example---control-led-brightness" id="toc-example---control-led-brightness" class="nav-link" data-scroll-target="#example---control-led-brightness">Example - control LED brightness</a></li>
+  <li><a href="#using-a-potentiometer-to-control-the-led-intensity" id="toc-using-a-potentiometer-to-control-the-led-intensity" class="nav-link" data-scroll-target="#using-a-potentiometer-to-control-the-led-intensity">Using a potentiometer to control the LED intensity</a></li>
   </ul></li>
   <li><a href="#power-electronics-with-a-h-bridge" id="toc-power-electronics-with-a-h-bridge" class="nav-link" data-scroll-target="#power-electronics-with-a-h-bridge">Power electronics with a H-bridge</a>
   <ul class="collapse">
   <li><a href="#what-is-a-h-bridge" id="toc-what-is-a-h-bridge" class="nav-link" data-scroll-target="#what-is-a-h-bridge">What is a H-bridge?</a></li>
   <li><a href="#l298n-driver" id="toc-l298n-driver" class="nav-link" data-scroll-target="#l298n-driver">L298N Driver</a></li>
-  </ul></li>
   <li><a href="#regulation-of-the-speed-and-rotation-direction-of-a-dc-motor" id="toc-regulation-of-the-speed-and-rotation-direction-of-a-dc-motor" class="nav-link" data-scroll-target="#regulation-of-the-speed-and-rotation-direction-of-a-dc-motor">Regulation of the speed and rotation direction of a DC motor</a></li>
-  <li><a href="#control-loop-example" id="toc-control-loop-example" class="nav-link" data-scroll-target="#control-loop-example">Control Loop Example</a></li>
+  </ul></li>
+  <li><a href="#peltier-cells" id="toc-peltier-cells" class="nav-link" data-scroll-target="#peltier-cells">Peltier cells</a>
+  <ul class="collapse">
+  <li><a href="#preparation-of-a-cell" id="toc-preparation-of-a-cell" class="nav-link" data-scroll-target="#preparation-of-a-cell">Preparation of a cell</a></li>
+  </ul></li>
+  <li><a href="#continuous-heat-transfer-and-sensor-readings" id="toc-continuous-heat-transfer-and-sensor-readings" class="nav-link" data-scroll-target="#continuous-heat-transfer-and-sensor-readings">Continuous heat transfer and sensor readings</a></li>
   </ul>
 </nav>
     </div>
@@ -283,19 +288,190 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="pulse-width-modulation-and-led-brightness">Pulse-Width-Modulation and LED brightness</h2>
 <section id="what-is-pulse-width-modulation" class="level3">
 <h3 class="anchored" data-anchor-id="what-is-pulse-width-modulation">What is Pulse-Width-Modulation ?</h3>
-<p>Pulse-width-modulation (PWM) is probably the most common way to produce an average analog voltage in electrical circuits via fast switching. The idea is simple: if you switch the voltage of a circuit between ON (Vcc volts) and OFF (0 volts) sufficiently fast, you will generate an average response in the circuit proportional to the ratio between the length of time the circuit was ON and overall period of the signal. This ratio is called the duty ratio.</p>
-<p>Not all circuits will respond well to such perturbation. To deliver a smooth response, some local time average is required. If we drive an LED at 10kHz, the component can really switch on and off at this rate, but the eye only perceives the time average of the light emitted, as our response time is of the order of 10s of milliseconds. So this is very effective at creating the illusion of diming the light. In other situation, a low pass filter with a resistor and capacitor can provide the averaging, delivering an output voltage increasing with the duty ratio, as a primitive digital-analog converter.</p>
+<p>Pulse-width-modulation (PWM) is probably the most common way to produce an average analog voltage in electrical circuits via fast switching. The idea is simple: if you switch the voltage of a circuit between ON (Vcc volts) and OFF (0 volts) sufficiently fast, you will generate an average response in the circuit proportional to the ratio between the length of time the circuit was ON and the overall period of the signal. This ratio is called the duty ratio.</p>
+<p>Not all circuits will respond well to such perturbation. To deliver a smooth response, some local time average is required. If we drive an LED at 10kHz, the component can really switch on and off at this rate, but the eye only perceives the time average of the light emitted, as our response time is of the order of 10s of milliseconds. So this is very effective at creating the illusion of dimming the light. In other situations, a low pass filter with a resistor and capacitor can provide the averaging, delivering an output voltage increasing with the duty ratio, as a primitive digital-analog converter.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/Duty_Cycle_Examples.png" class="img-fluid figure-img"></p>
 <figcaption>Duty_cycle_PWM</figcaption>
 </figure>
 </div>
-<p>This technique is so popular that you can find a full page on <a href="https://en.wikipedia.org/wiki/Pulse-width_modulation">Wikipedia</a> dedicated to it and several tutorials available on internet from <a href="https://www.arduino.cc/en/tutorial/PWM">Arduino</a> and <a href="https://learn.sparkfun.com/tutorials/pulse-width-modulation/all">Sparkfun</a>. You may find this video useful:</p>
+<p>This technique is so popular that you can find a full page on <a href="https://en.wikipedia.org/wiki/Pulse-width_modulation">Wikipedia</a> dedicated to it and several tutorials available on the internet from <a href="https://www.arduino.cc/en/tutorial/PWM">Arduino</a> and <a href="https://learn.sparkfun.com/tutorials/pulse-width-modulation/all">Sparkfun</a>. You may find this video useful:</p>
 <div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/GQLED3gmONg" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
 </section>
 <section id="example---control-led-brightness" class="level3">
 <h3 class="anchored" data-anchor-id="example---control-led-brightness">Example - control LED brightness</h3>
+<p>In this example, we aim to control the intensity of an LED by turning it on and off very quickly using PWM.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">MicroPython</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<p>Using the C SDK, we need to do some work to connect the pin to the PWM peripheral, called a slice. From the GP pin number, we need to find which hardware slice is attached to it, and then configure the slice to meet our needs. Note that we don’t set the PWM frequency directly, and provide a divider compared to the base clock frequency. The Pico and Pico 2 have slightly different frequency and would require different dividers to reach the same PWM frequency.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"pico/stdlib.h"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"hardware/pwm.h"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define LED_PIN </span><span class="dv">15</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define MAX_DUTY </span><span class="dv">65535</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#define STEP </span><span class="dv">500</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Configures and starts PWM on a given pin at ~1000 Hz</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> pwm_init_pin<span class="op">(</span><span class="dt">uint8_t</span> pin<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Assign the pin to the PWM peripheral block</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    gpio_set_function<span class="op">(</span>pin<span class="op">,</span> GPIO_FUNC_PWM<span class="op">);</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Find which PWM slice is connected to this pin</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    uint slice_num <span class="op">=</span> pwm_gpio_to_slice_num<span class="op">(</span>pin<span class="op">);</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Set top counter value for 16-bit resolution</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    pwm_set_wrap<span class="op">(</span>slice_num<span class="op">,</span> MAX_DUTY<span class="op">);</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Set clock divider for 1000 Hz at the Pico 2W default 150 MHz system clock</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Formula: 150,000,000 Hz / (22.88 * 65536) ≈ 1000 Hz</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    pwm_set_clkdiv<span class="op">(</span>slice_num<span class="op">,</span> <span class="fl">22.88</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Enable the PWM slice counter</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    pwm_set_enabled<span class="op">(</span>slice_num<span class="op">,</span> <span class="kw">true</span><span class="op">);</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initialize standard I/O (optional, useful for debugging)</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    stdio_init_all<span class="op">();</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initialize the PWM hardware on the defined pin</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    pwm_init_pin<span class="op">(</span>LED_PIN<span class="op">);</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Get hardware mapping for updating brightness in the loop</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    uint slice_num <span class="op">=</span> pwm_gpio_to_slice_num<span class="op">(</span>LED_PIN<span class="op">);</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    uint channel <span class="op">=</span> pwm_gpio_to_channel<span class="op">(</span>LED_PIN<span class="op">);</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="kw">true</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Fade In (Increase intensity)</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> duty <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> duty <span class="op">&lt;=</span> MAX_DUTY<span class="op">;</span> duty <span class="op">+=</span> STEP<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>            pwm_set_chan_level<span class="op">(</span>slice_num<span class="op">,</span> channel<span class="op">,</span> duty<span class="op">);</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>            sleep_ms<span class="op">(</span><span class="dv">10</span><span class="op">);</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Fade Out (Decrease intensity)</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> duty <span class="op">=</span> MAX_DUTY<span class="op">;</span> duty <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">;</span> duty <span class="op">-=</span> STEP<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>            pwm_set_chan_level<span class="op">(</span>slice_num<span class="op">,</span> channel<span class="op">,</span> duty<span class="op">);</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>            sleep_ms<span class="op">(</span><span class="dv">10</span><span class="op">);</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> machine <span class="im">import</span> Pin, PWM</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize PWM on GP15</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>led_pwm <span class="op">=</span> PWM(Pin(<span class="dv">15</span>))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the PWM frequency (1000 Hz ensures smooth dimming without flicker)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>led_pwm.freq(<span class="dv">1000</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Duty cycle range for 16-bit PWM in MicroPython: 0 to 65535</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>MAX_DUTY <span class="op">=</span> <span class="dv">65535</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>STEP <span class="op">=</span> <span class="dv">500</span>  <span class="co"># Adjust step size to change brightness transition speed</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Fade In (Increase intensity)</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> duty <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, MAX_DUTY, STEP):</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        led_pwm.duty_u16(duty)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        time.sleep_ms(<span class="dv">10</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Fade Out (Decrease intensity)</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> duty <span class="kw">in</span> <span class="bu">range</span>(MAX_DUTY, <span class="dv">0</span>, <span class="op">-</span>STEP):</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        led_pwm.duty_u16(duty)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        time.sleep_ms(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</section>
+<section id="using-a-potentiometer-to-control-the-led-intensity" class="level3">
+<h3 class="anchored" data-anchor-id="using-a-potentiometer-to-control-the-led-intensity">Using a potentiometer to control the LED intensity</h3>
+<p>A potentiometer is a three pin voltage divider that allows us to continuously vary voltage. Connect the left and right pins to ground and Vcc, and monitor the voltage in the middle one with an analog input on your board. The Pico offers three of them.</p>
+<p>Look for the <code>ADC0</code> to <code>ADC2</code> (ADC stands for Analog-Digital Converter) inputs on the board’s pinout. We need to use one of them, and configure the GPIO pin to use the ADC. The code below shows how to do it. Feel free to adapt it to your requirements.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">MicroPython</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"pico/stdlib.h"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"hardware/pwm.h"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"hardware/adc.h"</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define LED_PIN </span><span class="dv">15</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#define POT_PIN </span><span class="dv">26</span><span class="pp">      </span><span class="co">// Using GP26 (ADC0) instead of GP16</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#define ADC_CHANNEL </span><span class="dv">0</span><span class="pp">   </span><span class="co">// GP26 corresponds to ADC input 0</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="pp">#define MAX_DUTY </span><span class="dv">65535</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Configures and starts PWM on a given pin at ~1000 Hz</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> pwm_init_pin<span class="op">(</span><span class="dt">uint8_t</span> pin<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    gpio_set_function<span class="op">(</span>pin<span class="op">,</span> GPIO_FUNC_PWM<span class="op">);</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    uint slice_num <span class="op">=</span> pwm_gpio_to_slice_num<span class="op">(</span>pin<span class="op">);</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    pwm_set_wrap<span class="op">(</span>slice_num<span class="op">,</span> MAX_DUTY<span class="op">);</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    pwm_set_clkdiv<span class="op">(</span>slice_num<span class="op">,</span> <span class="fl">22.88</span><span class="bu">f</span><span class="op">);</span> <span class="co">// 1000 Hz at 150 MHz default clock</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    pwm_set_enabled<span class="op">(</span>slice_num<span class="op">,</span> <span class="kw">true</span><span class="op">);</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    stdio_init_all<span class="op">();</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initialize PWM for the LED</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    pwm_init_pin<span class="op">(</span>LED_PIN<span class="op">);</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    uint slice_num <span class="op">=</span> pwm_gpio_to_slice_num<span class="op">(</span>LED_PIN<span class="op">);</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    uint channel <span class="op">=</span> pwm_gpio_to_channel<span class="op">(</span>LED_PIN<span class="op">);</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initialize the ADC hardware</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    adc_init<span class="op">();</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    adc_gpio_init<span class="op">(</span>POT_PIN<span class="op">);</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    adc_select_input<span class="op">(</span>ADC_CHANNEL<span class="op">);</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="kw">true</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Read 12-bit ADC raw value (0 to 4095)</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint16_t</span> adc_raw <span class="op">=</span> adc_read<span class="op">();</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Scale 12-bit ADC value (0-4095) up to 16-bit PWM duty (0-65535)</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 4095 * 16 = 65520 (approximates MAX_DUTY smoothly)</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint16_t</span> duty <span class="op">=</span> adc_raw <span class="op">*</span> <span class="dv">16</span><span class="op">;</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Apply duty cycle to LED PWM channel</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>        pwm_set_chan_level<span class="op">(</span>slice_num<span class="op">,</span> channel<span class="op">,</span> duty<span class="op">);</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>        sleep_ms<span class="op">(</span><span class="dv">10</span><span class="op">);</span> <span class="co">// Small delay to prevent unnecessary CPU looping</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> machine <span class="im">import</span> Pin, PWM, ADC</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize PWM on GP15</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>led_pwm <span class="op">=</span> PWM(Pin(<span class="dv">15</span>))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>led_pwm.freq(<span class="dv">1000</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize ADC on GP26 (ADC0)</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>pot <span class="op">=</span> ADC(Pin(<span class="dv">26</span>))</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># MicroPython automatically scales ADC readings to a 16-bit range (0 to 65535)</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    duty <span class="op">=</span> pot.read_u16()</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Set LED PWM brightness directly</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    led_pwm.duty_u16(duty)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Small delay to reduce CPU strain</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    time.sleep_ms(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
 </section>
 </section>
 <section id="power-electronics-with-a-h-bridge" class="level2">
@@ -321,7 +497,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="l298n-driver" class="level3">
 <h3 class="anchored" data-anchor-id="l298n-driver">L298N Driver</h3>
-<p>The L298N driver is a dual H-bridge that can be used with voltages between 3.2 V to 40 V and can supply up to 2 A per bridge. To know more about this driver, consults the relevant data-sheet from manufacturers of the <a href="resources/L298N.pdf">driver integrated circuit</a> and the manufacturer of the <a href="resources/L298N-Motor-Driver-Datasheet.pdf">breakout board</a>.</p>
+<p>The L298N driver is a dual H-bridge that can be used with voltages between 3.2 V to 40 V and can supply up to 2 A per bridge. To know more about this driver, consult the relevant data-sheet from manufacturer of the <a href="resources/L298N-Motor-Driver-Datasheet.pdf">breakout board</a>.</p>
+<p>With this device, we do not control the switches <code>S1</code> to <code>S4</code> directly, as this may lead to short circuits. Instead, we have two pins that control the safe states of the system: two directions of current flow, and fully open circuit.</p>
 <p>The image below, from the breakout board datasheet, shows the different inputs and outputs of the circuit.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -339,34 +516,211 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>if IN1 = 0 and IN2 = 1, the current will flow in the opposite direction through the load;</li>
 </ul></li>
 <li><p>The pin “A Enable” could be either set to 1 permanently using the jumper, or connected to a PWM input to modulate the load. In the example below, we will use PWM so the jumper needs to be removed and safely stored.</p></li>
-<li><p>the +5V Power pin is not required here. It may be used to actually power the microcontroller, but we use here the USB connection to the computer to deliver power.</p></li>
+<li><p>The +5V Power pin is not required here. It may be used to actually power the microcontroller, but we use here the USB connection to the computer to deliver power.</p></li>
 <li><p>However, the microcontroller and the L298N H-bridge need to have the same ground. It is therefore important to connect the Power GND terminal of the H-bridge to a GND pin of the microcontroller.</p></li>
 </ul>
 </section>
-</section>
-<section id="regulation-of-the-speed-and-rotation-direction-of-a-dc-motor" class="level2">
-<h2 class="anchored" data-anchor-id="regulation-of-the-speed-and-rotation-direction-of-a-dc-motor">Regulation of the speed and rotation direction of a DC motor</h2>
+<section id="regulation-of-the-speed-and-rotation-direction-of-a-dc-motor" class="level3">
+<h3 class="anchored" data-anchor-id="regulation-of-the-speed-and-rotation-direction-of-a-dc-motor">Regulation of the speed and rotation direction of a DC motor</h3>
+<p>We now would like to use the H-bridge to control the speed and direction of rotation of a simple motor.</p>
 <ul>
 <li><p>Connect a small DC motor to the “Output A” terminals.</p></li>
 <li><p>Configure the power supply to deliver 5 V and up to 1 A. Connect the (-) voltage output of the power supply to the ground of the H-bridge, and the (+) voltage to the “+12V Power” terminal of the bridge.</p></li>
-<li><p>Connect the GND of the microcontroller to the “Power GND” terminal of the bridge. (You can insert two cables if the terminal if needed.)</p></li>
-<li><p>Connect IN1 and IN2 to two digital outputs of the microcontroller. The code below uses the pins D8 and D9.</p></li>
-<li><p>Connect “A enable” to a PWM enabled pin. The code below uses the pin D11.</p></li>
+<li><p>Connect the GND of the microcontroller to the “Power GND” terminal of the bridge. (You can insert two cables into the terminal if needed.)</p></li>
+<li><p>Connect IN1 and IN2 to two digital outputs of the microcontroller.</p></li>
+<li><p>Connect “A enable” to a PWM enabled pin.</p></li>
 </ul>
-</section>
-<section id="control-loop-example" class="level2">
-<h2 class="anchored" data-anchor-id="control-loop-example">Control Loop Example</h2>
+<p>The code below can get you started.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">MicroPython</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">MicroPython</a></li></ul>
 <div class="tab-content" data-group="language">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C PWM and Control Loop</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"pico/stdlib.h"</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"hardware/pwm.h"</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define PWM_PIN </span><span class="dv">11</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define IN_A_PIN </span><span class="dv">8</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#define IN_B_PIN </span><span class="dv">9</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#define MAX_DUTY </span><span class="dv">65535</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Configures and starts PWM on a given pin at ~1000 Hz</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> pwm_init_pin<span class="op">(</span><span class="dt">uint8_t</span> pin<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    gpio_set_function<span class="op">(</span>pin<span class="op">,</span> GPIO_FUNC_PWM<span class="op">);</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    uint slice_num <span class="op">=</span> pwm_gpio_to_slice_num<span class="op">(</span>pin<span class="op">);</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    pwm_set_wrap<span class="op">(</span>slice_num<span class="op">,</span> MAX_DUTY<span class="op">);</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    pwm_set_clkdiv<span class="op">(</span>slice_num<span class="op">,</span> <span class="fl">22.88</span><span class="bu">f</span><span class="op">);</span> <span class="co">// ~1000 Hz at 150 MHz default clock (Pico 2W)</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    pwm_set_enabled<span class="op">(</span>slice_num<span class="op">,</span> <span class="kw">true</span><span class="op">);</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co">// Sets motor direction and speed: x ranges from -1.0 to 1.0</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> set_load<span class="op">(</span><span class="dt">float</span> x<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Clamp x between -1.0 and 1.0</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>x <span class="op">&gt;</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">)</span> x <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>x <span class="op">&lt;</span> <span class="op">-</span><span class="fl">1.0</span><span class="bu">f</span><span class="op">)</span> x <span class="op">=</span> <span class="op">-</span><span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Look up PWM slice and channel dynamically for the pin</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    uint slice_num <span class="op">=</span> pwm_gpio_to_slice_num<span class="op">(</span>PWM_PIN<span class="op">);</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    uint channel <span class="op">=</span> pwm_gpio_to_channel<span class="op">(</span>PWM_PIN<span class="op">);</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>x <span class="op">&gt;</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>        gpio_put<span class="op">(</span>IN_A_PIN<span class="op">,</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>        gpio_put<span class="op">(</span>IN_B_PIN<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>        pwm_set_chan_level<span class="op">(</span>slice_num<span class="op">,</span> channel<span class="op">,</span> <span class="op">(</span><span class="dt">uint16_t</span><span class="op">)(</span>x <span class="op">*</span> MAX_DUTY<span class="op">));</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>x <span class="op">&lt;</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>        gpio_put<span class="op">(</span>IN_A_PIN<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>        gpio_put<span class="op">(</span>IN_B_PIN<span class="op">,</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>        pwm_set_chan_level<span class="op">(</span>slice_num<span class="op">,</span> channel<span class="op">,</span> <span class="op">(</span><span class="dt">uint16_t</span><span class="op">)(-</span>x <span class="op">*</span> MAX_DUTY<span class="op">));</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>        gpio_put<span class="op">(</span>IN_A_PIN<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>        gpio_put<span class="op">(</span>IN_B_PIN<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>        pwm_set_chan_level<span class="op">(</span>slice_num<span class="op">,</span> channel<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>    stdio_init_all<span class="op">();</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Configure direction pins as outputs</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>    gpio_init<span class="op">(</span>IN_A_PIN<span class="op">);</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>    gpio_set_dir<span class="op">(</span>IN_A_PIN<span class="op">,</span> GPIO_OUT<span class="op">);</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>    gpio_init<span class="op">(</span>IN_B_PIN<span class="op">);</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>    gpio_set_dir<span class="op">(</span>IN_B_PIN<span class="op">,</span> GPIO_OUT<span class="op">);</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Configure PWM output using helper</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>    pwm_init_pin<span class="op">(</span>PWM_PIN<span class="op">);</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initial ramp-up from 0.0 to 1.0</span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> load <span class="op">=</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>load <span class="op">&lt;=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>        set_load<span class="op">(</span>load<span class="op">);</span></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>        sleep_ms<span class="op">(</span><span class="dv">100</span><span class="op">);</span></span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>        load <span class="op">+=</span> <span class="fl">0.025</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Continuous cycling loop</span></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="kw">true</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Ramp down from 1.0 to -1.0</span></span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>        load <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(</span>load <span class="op">&gt;=</span> <span class="op">-</span><span class="fl">1.0</span><span class="bu">f</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>            set_load<span class="op">(</span>load<span class="op">);</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>            sleep_ms<span class="op">(</span><span class="dv">100</span><span class="op">);</span></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>            load <span class="op">-=</span> <span class="fl">0.025</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Ramp up from -1.0 to 1.0</span></span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>        load <span class="op">=</span> <span class="op">-</span><span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(</span>load <span class="op">&lt;=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a>            set_load<span class="op">(</span>load<span class="op">);</span></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a>            sleep_ms<span class="op">(</span><span class="dv">100</span><span class="op">);</span></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>            load <span class="op">+=</span> <span class="fl">0.025</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MicroPython PWM and Control Loop</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> machine <span class="im">import</span> Pin, PWM</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> utime</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Pins used for H-bridge control</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>pwm_load <span class="op">=</span> PWM(Pin(<span class="dv">11</span>))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>in_A <span class="op">=</span> Pin(<span class="dv">8</span>, Pin.OUT)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>in_B <span class="op">=</span> Pin(<span class="dv">9</span>, Pin.OUT)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Set PWM frequency (1 kHz default is standard for motor control)</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>pwm_load.freq(<span class="dv">1000</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> set_load(x):</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Clamp x between -1.0 and 1.0</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="bu">max</span>(<span class="op">-</span><span class="fl">1.0</span>, <span class="bu">min</span>(<span class="fl">1.0</span>, x))</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        in_A.value(<span class="dv">1</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        in_B.value(<span class="dv">0</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Convert float (0.0 to 1.0) to 16-bit PWM range (0 to 65535)</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        pwm_load.duty_u16(<span class="bu">int</span>(x <span class="op">*</span> <span class="dv">65535</span>))</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> x <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        in_A.value(<span class="dv">0</span>)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        in_B.value(<span class="dv">1</span>)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        pwm_load.duty_u16(<span class="bu">int</span>(<span class="op">-</span>x <span class="op">*</span> <span class="dv">65535</span>))</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>        in_A.value(<span class="dv">0</span>)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        in_B.value(<span class="dv">0</span>)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>        pwm_load.duty_u16(<span class="dv">0</span>)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Main execution logic</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Initial ramp-up from 0.0 to 1.0</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>load <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> load <span class="op">&lt;=</span> <span class="fl">1.0</span>:</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    set_load(load)</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    utime.sleep(<span class="fl">0.1</span>)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    load <span class="op">+=</span> <span class="fl">0.025</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Continuous cycling</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ramp down from 1.0 to -1.0</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    load <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> load <span class="op">&gt;=</span> <span class="op">-</span><span class="fl">1.0</span>:</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>        set_load(load)</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>        utime.sleep(<span class="fl">0.1</span>)</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>        load <span class="op">-=</span> <span class="fl">0.025</span></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ramp up from -1.0 to 1.0</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>    load <span class="op">=</span> <span class="op">-</span><span class="fl">1.0</span></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> load <span class="op">&lt;=</span> <span class="fl">1.0</span>:</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>        set_load(load)</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>        utime.sleep(<span class="fl">0.1</span>)</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>        load <span class="op">+=</span> <span class="fl">0.025</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
+</section>
+</section>
+<section id="peltier-cells" class="level2">
+<h2 class="anchored" data-anchor-id="peltier-cells">Peltier cells</h2>
+<section id="preparation-of-a-cell" class="level3">
+<h3 class="anchored" data-anchor-id="preparation-of-a-cell">Preparation of a cell</h3>
+<p><a href="https://en.wikipedia.org/wiki/Thermoelectric_cooling">Peltier cells</a> use the <a href="https://en.wikipedia.org/wiki/Thermoelectric_effect#Peltier_effect">Peltier effect</a> to pump heat from one plate to another of the device. The flux of heat is roughly proportional to the current passing through the peltier cell. The image below provides a schematic representation of a Peltier cell.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Peltierelement.png" class="img-fluid figure-img" style="width:50.0%" alt="Peltier cell"></p>
+<figcaption>Peltier cell. Source: Wikipedia</figcaption>
+</figure>
+</div>
+<p>One of the two plates of the Peltier cell is engineered to be hot. The other to be cold. Please attach the thermal adhesive on both sides, then attach the heat sink to the cold side. To identify the hot side please refer to the <a href="docs/peltier_datasheet.pdf">datasheet</a>. For the particular model provided, place the cell on the bench/desk with the black cable on the right/down and red cable on the left/down, then the top plate is the hot plate.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Task">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Task
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Connect the Peltier cell to the H-bridge output. Set the power supply to 9 V and 1 A max. Reuse the code you wrote in the previous section to test the Peltier cell and make sure that the cold side get cooler, and hot side warmer when the load is positive. You should be able to determine this by carefully touching the surfaces with your fingers. Be careful as it may get hot! If it works the other way around, either you change your code, or you switch the cable of the Peltier cell.</strong></p>
+</div>
+</div>
+<ul>
+<li>Place the Peltier cell on your desk/bench with the heat sink in contact with the bench surface and the hot side exposed to the air. Then place the temperature sensor on the hot side (fix it with standard tape). Make sure the side of the sensor with the integrated circuit is in contact, and not the other one.</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="resources/peltier_bench.jpg" class="img-fluid figure-img" style="width:50.0%" alt="Peltier cell"></p>
+<figcaption>Peltier bench realization.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="continuous-heat-transfer-and-sensor-readings" class="level2">
+<h2 class="anchored" data-anchor-id="continuous-heat-transfer-and-sensor-readings">Continuous heat transfer and sensor readings</h2>
+<p>Use your new skills to gently power the Peltier and monitor temperature at the same time.</p>
 
 
 </section>

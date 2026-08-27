@@ -101,8 +101,6 @@ I2C_PORT = 0
 SDA_PIN = 4
 SCL_PIN = 5
 
-OS_INT_PIN = 16    # LM75B OS Alert Pin input
-LED_PIN = 15       # External LED Pin output
 
 # I2C Bus Scanner
 def i2c_scan(i2c):
