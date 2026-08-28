@@ -116,6 +116,7 @@ while True:
 
 
 
+
 ### Using a potentiometer to control the LED intensity
 
 A potentiometer is a three pin voltage divider that allows us to continuously vary voltage. Connect the left pin to ground, the right pin to Vcc, and monitor the voltage in the middle one by connecting it to an analog input on your board. The Pico offers three of them.
